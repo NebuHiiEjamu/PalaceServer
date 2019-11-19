@@ -13,7 +13,9 @@
 
 enum class Client : std::uint8_t
 {
+	unknown,
 	thePalace,
+	openPalace,
 	palaceChat
 };
 
@@ -67,19 +69,20 @@ namespace UserStatus
 
 class Session : public std::enable_shared_from_this<Session>
 {
+
 public:
-	Session(ServerRef);
-	std::string&& getClientString() const;
-	std::string&& getPlatformString() const;
+	Session(const AuxRegistration&);
+	std::string_view getClientString() const;
+	std::string_view getPlatformString() const;
 private:
 	PalaceConnectionPtr connection;
-	ServerRef server;
 	std::string userName;
 	std::vector<std::uint8_t> password;
-	std::array<AssetSpec, 9> props;
+	std::array<AssetRef, 9> props;
 	std::bitset<UserStatus::all> status;
-	Point position;
 	std::int16_t room;
+	std::int16_t x;
+	std::int16_t y;
 	Client client;
 	ClientPlatform platform;
 	Face face;

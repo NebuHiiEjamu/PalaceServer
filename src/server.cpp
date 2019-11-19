@@ -23,7 +23,7 @@ static const std::array<std::uint32_t, 512> generateLookUpTable()
 }
 
 static const std::array<std::uint32_t, 512> lookUpTable = generateLookUpTable();
-Server::server = std::make_shared<Server>();
+Server::instance = std::make_shared<Server>();
 
 template <class Container> void Server::encode(Container &buffer)
 {
@@ -155,11 +155,16 @@ constexpr std::string_view Server::getDefaultDatabase()
 			VALUES (86, 'Gate', 'clouds.png', 256);";
 }
 
-bool Server::createSession(std::int32_t id)
+Server::Server():
+	nextUserId(1)
+{
+}
+
+bool Server::createSession(const AuxRegistration &registration)
 {
 	std::lock_guard<std::mutex> lock(sessionMutex);
-	SessionPtr newSession = std::make_shared<Session>(shared_from_this());
-	sessionMap[id] = newSession;
+	SessionPtr newSession = std::make_shared<Session>(registration);
+	sessionMap[nextUserId++] = newSession;
 
 	return true;
 }

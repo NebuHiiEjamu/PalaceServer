@@ -1,3 +1,4 @@
+#include <iterator>
 #include <sstream>
 
 #include "room.hpp"
@@ -17,5 +18,5 @@ template <class Container> void LooseProp::toBuffer(Container &buffer) const
 
 	std::ostringstrem stream;
 	stream.write(reinterpret_cast<const char*>(&rec), sizeof(LoosePropRec));
-	buffer.insert(buffer.end(), stream.str().begin(), stream.str().end());
+	buffer.insert(std::back_inserter(buffer), stream.str().begin(), stream.str().end());
 }

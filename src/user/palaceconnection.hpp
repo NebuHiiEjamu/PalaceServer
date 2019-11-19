@@ -8,7 +8,7 @@
 class PalaceConnection : public Connection
 {
 public:
-	PalaceConnection(SessionRef, HivePtr, ListenerPtr);
+	PalaceConnection(HivePtr, ListenerPtr);
 protected:
 	void onAccept(std::string_view, std::uint16_t) override;
 	void onSend(const std::vector<std::uint8_t>&) override;
@@ -16,9 +16,7 @@ protected:
 	void onError(asio::error_code) override;
 	void onDisconnect() override;
 private:
-	SessionRef owner;
 	ListenerPtr listener;
-	std::vector<std::uint8_t> packetBuffer;
 };
 
 #endif // _PALACECONNECTION_H

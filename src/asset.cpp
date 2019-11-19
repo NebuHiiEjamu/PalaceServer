@@ -1,3 +1,4 @@
+#include <iterator>
 #include <sstream>
 
 #include "asset.hpp"
@@ -30,7 +31,7 @@ template <class Container> void Asset::specToBuffer(Container &buffer) const
 	AssetSpec spec { Server::getInstance()->findAssetIdByCrc(crc), crc };
 	std::ostringstrem stream;
 	stream.write(reinterpret_cast<const char*>(&spec), sizeof(AssetSpec));
-	buffer.insert(buffer.end(), stream.str().begin(), stream.str().end());
+	buffer.insert(std::back_inserter(buffer), stream.str().begin(), stream.str().end());
 }
 
 template <class Container> void Asset::descriptorToBuffer(Container &buffer) const
@@ -44,5 +45,5 @@ template <class Container> void Asset::descriptorToBuffer(Container &buffer) con
 
 	std::ostringstrem stream;
 	stream.write(reinterpret_cast<const char*>(&descriptor), sizeof(AssetDescriptor));
-	buffer.insert(buffer.end(), stream.str().begin(), stream.str().end());
+	buffer.insert(std::back_inserter(buffer), stream.str().begin(), stream.str().end());
 }

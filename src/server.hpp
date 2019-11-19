@@ -8,6 +8,7 @@
 #include <sqlite3.h>
 #include <string>
 
+#include "net/forward.hpp"
 #include "user/forward.hpp"
 #include "forward.hpp"
 
@@ -104,7 +105,9 @@ public:
 	static ServerRef getInstance();
 	template <class Container> static void encode(Container&);
 	template <class Container> static void decode(Container&);
-	bool createSession(std::int32_t);
+
+	~Server();
+	bool createSession(const AuxRegistration&);
 	void removeSession(std::int32_t);
 	std::int32_t findAssetIdByCrc(std::uint32_t) const;
 private:
@@ -126,6 +129,7 @@ private:
 	std::mutex roomMutex;
 	std::mutex sessionMutex;
 	std::mutex dbMutex;
+	std::int32_t nextUserId;
 };
 
 #endif // _SERVER_H
