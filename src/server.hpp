@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <map>
 #include <mutex>
+#include <random>
 #include <sqlite3.h>
 #include <string>
 
@@ -48,7 +49,8 @@ namespace Configuration
 		directPlay = 0,
 		closed,
 		guestsAreMembers,
-		instantPalace = 4,
+		advertising,
+		instantPalace,
 		palacePresents,
 		all
 	};
@@ -94,6 +96,21 @@ namespace Options
 	};
 }
 
+namespace ExtendedInfo
+{
+	enum
+	{
+		avatarUrl = 0,
+		serverVersion,
+		serverType,
+		serverFlags,
+		userCount,
+		serverName,
+		imageUrl,
+		all
+	};
+}
+
 class Server final : public std::enable_shared_from_this<Server>
 {
 public:
@@ -107,7 +124,7 @@ public:
 	template <class Container> static void decode(Container&);
 
 	~Server();
-	bool createSession(const AuxRegistration&);
+	bool createSession(PalaceConnectionPtr, const AuxRegistration&);
 	void removeSession(std::int32_t);
 	std::int32_t findAssetIdByCrc(std::uint32_t) const;
 private:
@@ -116,7 +133,10 @@ private:
 	static std::shared_ptr<Server> instance;
 
 	std::string name;
+	std::random_device randomDevice;
+	std::mt19937 randomEngine;
 	std::bitset<Configuration::all> configuration;
+	std::bitset<ExtendedInfo::all> extendedInfo;
 	std::bitset<Permissions::all> permissions;
 	std::bitset<Options::all> options;
 	std::map<std::int32_t, SessionPtr> sessionMap;

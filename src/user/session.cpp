@@ -5,7 +5,8 @@
 #include "palaceconnection.hpp"
 #include "../net/packet.hpp"
 
-Session::Session(const AuxRegistration &registration)
+Session::Session(PalaceConnectionPtr connection, const AuxRegistration &registration):
+	connection(connection)
 {
 	userName = registration.userName.characters;
 	password = std::vector<std::uint8_t>(std::begin(registration.password.characters),
@@ -21,12 +22,14 @@ Session::Session(const AuxRegistration &registration)
 		default: platform = ClientPlatform::unknown;
 	}
 
-	if (std::strncmp(registration.reserved, "OPNPAL", 6) == 0)
+	if (std::strncmp(registration.reserved, "PC4237", 6) == 0)
 		client = Client::openPalace;
-	else if (std::strncmp(registration.reserved, "PC", 2) == 0)
+	else if (std::strncmp(registration.reserved, "OPNPAL", 6) == 0)
 		client = Client::palaceChat;
-	else if (std::strncmp(registration.reserved, "PAL", 3) == 0)
+	else if (std::strncmp(registration.reserved, "350211", 6) == 0)
 		client = Client::thePalace;
+	else if (std::strncmp(registration.reserved, "J2.0\0\0", 6) == 0)
+		client = Client::instantPalace;
 	else client = Client::unknown;
 }
 
@@ -34,9 +37,10 @@ std::string_view Session::getClientString() const
 {
 	switch (client)
 	{
-		case Client::thePalace: return "ThePalace"; break;
-		case Client::openPalace: return "OpenPalace"; break;
 		case Client::palaceChat: return "PalaceChat"; break;
+		case Client::openPalace: return "OpenPalace"; break;
+		case Client::thePalace: return "ThePalace"; break;
+		case Client::instantPalace: return "InstantPalace"; break;
 		default: return "unknown";
 	}
 }

@@ -24,10 +24,14 @@ public:
 	bool hasError();
 	void disconnect();
 	void receive(std::uint32_t);
+	void send(const std::vector<std::uint8_t>&);
 private:
 	void dispatchReceive(std::uint32_t);
+	void dispatchSend(const std::vector<std::uint8_t>&);
 	void startReceive(std::uint32_t);
+	void startSend();
 	void handleReceive(asio::error_code, std::uint32_t);
+	void handleSend(asio::error_code, std::list<std::vector<std::uint8_t>>::iterator);
 	void startError(asio::error_code);
 protected:
 	Connection(HivePtr);

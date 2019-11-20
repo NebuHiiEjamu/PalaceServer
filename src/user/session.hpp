@@ -15,6 +15,7 @@ enum class Client : std::uint8_t
 {
 	unknown,
 	thePalace,
+	instantPalace,
 	openPalace,
 	palaceChat
 };
@@ -71,7 +72,7 @@ class Session : public std::enable_shared_from_this<Session>
 {
 
 public:
-	Session(const AuxRegistration&);
+	Session(PalaceConnectionPtr, const AuxRegistration&);
 	std::string_view getClientString() const;
 	std::string_view getPlatformString() const;
 private:

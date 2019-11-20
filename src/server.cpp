@@ -2,6 +2,7 @@
 #include <boost/predef.h>
 
 #include "server.hpp"
+#include "user/palaceconnection.hpp"
 #include "user/session.hpp"
 
 static const std::array<std::uint32_t, 512> generateLookUpTable()
@@ -23,7 +24,7 @@ static const std::array<std::uint32_t, 512> generateLookUpTable()
 }
 
 static const std::array<std::uint32_t, 512> lookUpTable = generateLookUpTable();
-Server::instance = std::make_shared<Server>();
+std::shared_ptr<Server> Server::instance = std::make_shared<Server>();
 
 template <class Container> void Server::encode(Container &buffer)
 {
@@ -156,14 +157,15 @@ constexpr std::string_view Server::getDefaultDatabase()
 }
 
 Server::Server():
+	randomEngine(std::mt19937(randomDevice())),
 	nextUserId(1)
 {
 }
 
-bool Server::createSession(const AuxRegistration &registration)
+bool Server::createSession(PalaceConnectionPtr connection, const AuxRegistration &registration)
 {
 	std::lock_guard<std::mutex> lock(sessionMutex);
-	SessionPtr newSession = std::make_shared<Session>(registration);
+	SessionPtr newSession = std::make_shared<Session>(connection, registration);
 	sessionMap[nextUserId++] = newSession;
 
 	return true;

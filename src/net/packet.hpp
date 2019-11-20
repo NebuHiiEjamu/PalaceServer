@@ -91,6 +91,18 @@ constexpr std::uint32_t idProp = 0x50726F70;
 constexpr std::uint32_t idUserBase = 0x55736572;
 constexpr std::uint32_t idIpUserBase = 0x49557372;
 
+constexpr std::uint32_t idInfoName = 0x4E414D45;
+constexpr std::uint32_t idInfoPassword = 0x50415353;
+constexpr std::uint32_t idInfoType = 0x54595045;
+constexpr std::uint32_t idInfoAvatarUrl = 0x4155524C;
+constexpr std::uint32_t idInfoVersion = 0x56455253;
+constexpr std::uint32_t idInfoFlag = 0x464C4147;
+constexpr std::uint32_t idInfoUserCount = 0x4E555352;
+constexpr std::uint32_t idInfoImageUrl = 0x4855524C;
+
+constexpr std::uint32_t idErrorAuthentication = 0x41555448;
+constexpr std::uint32_t idErrorUnknown = 0x554E4B4E;
+
 struct Str31
 {
 	std::uint8_t size;

@@ -60,6 +60,13 @@ void Connection::dispatchReceive(std::uint32_t totalBytes)
 	if (pendingReceives.empty()) startReceive(totalBytes);
 }
 
+void Connection::dispatchSend(const std::vector<std::uint8_t> &buffer)
+{
+	bool shouldStartSend = pendingSends.empty();
+	pendingSends.push_back(buffer);
+	if (shouldStartSend) startSend();
+}
+
 void Connection::startReceive(std::uint32_t totalBytes)
 {
 	if (totalBytes > 0)
@@ -78,6 +85,14 @@ void Connection::startReceive(std::uint32_t totalBytes)
 	}
 }
 
+void Connection::startSend()
+{
+	if (!pendingSends.empty())
+		asio::async_write(socket, asio::buffer(pendingSends.front()), asio::bind_executor(strand,
+			std::bind(&Connection::handleSend, shared_from_this(), std::placeholders::_1,
+			pendingSends.begin())));
+}
+
 void Connection::handleReceive(asio::error_code error, std::uint32_t receivedBytes)
 {
 	if (error || hasError() || hive->stopped()) startError(error);
@@ -91,9 +106,25 @@ void Connection::handleReceive(asio::error_code error, std::uint32_t receivedByt
 	}
 }
 
+void Connection::handleSend(asio::error_code error, std::list<std::vector<std::uint8_t>>::iterator it)
+{
+	if (error || hasError() || hive->stopped()) startError(error);
+	else
+	{
+		onSend(*it);
+		pendingSends.erase(it);
+		startSend();
+	}
+}
+
 void Connection::receive(std::uint32_t totalBytes = 0)
 {
 	strand.post(std::bind(&Connection::dispatchReceive, shared_from_this(), totalBytes));
+}
+
+void Connection::send(const std::vector<std::uint8_t> &buffer)
+{
+	strand.post(std::bind(&Connection::dispatchSend, shared_from_this(), buffer));
 }
 
 std::uint32_t Connection::getInBufferSize() const
