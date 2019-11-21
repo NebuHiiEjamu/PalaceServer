@@ -56,14 +56,14 @@ void Connection::startError(asio::error_code error)
 
 void Connection::dispatchReceive(std::uint32_t totalBytes)
 {
-	pendingReceives.push_back(totalBytes);
+	pendingReceives.push(totalBytes);
 	if (pendingReceives.empty()) startReceive(totalBytes);
 }
 
 void Connection::dispatchSend(const std::vector<std::uint8_t> &buffer)
 {
 	bool shouldStartSend = pendingSends.empty();
-	pendingSends.push_back(buffer);
+	pendingSends.push(buffer);
 	if (shouldStartSend) startSend();
 }
 
@@ -101,18 +101,18 @@ void Connection::handleReceive(asio::error_code error, std::uint32_t receivedByt
 		inBuffer.resize(receivedBytes);
 		onReceive(inBuffer);
 		receive();
-		pendingReceives.pop_front();
+		pendingReceives.pop();
 		if (!pendingReceives.empty()) startReceive(pendingReceives.front());
 	}
 }
 
-void Connection::handleSend(asio::error_code error, std::list<std::vector<std::uint8_t>>::iterator it)
+void Connection::handleSend(asio::error_code error, std::vector<std::uint8_t> &message)
 {
 	if (error || hasError() || hive->stopped()) startError(error);
 	else
 	{
-		onSend(*it);
-		pendingSends.erase(it);
+		onSend(message);
+		pendingSends.pop();
 		startSend();
 	}
 }

@@ -2,6 +2,7 @@
 #include <boost/predef.h>
 
 #include "server.hpp"
+#include "net/packet.hpp"
 #include "user/palaceconnection.hpp"
 #include "user/session.hpp"
 
@@ -162,11 +163,12 @@ Server::Server():
 {
 }
 
-bool Server::createSession(PalaceConnectionPtr connection, const AuxRegistration &registration)
+bool Server::createSession(std::int32_t id, PalaceConnectionPtr connection)
 {
-	std::lock_guard<std::mutex> lock(sessionMutex);
-	SessionPtr newSession = std::make_shared<Session>(connection, registration);
-	sessionMap[nextUserId++] = newSession;
+	std::lock_guard<std::mutex> lock(mutex);
+	SessionPtr newSession = std::make_shared<Session>(id, connection);
+	connection->setSession(newSession);
+	sessionMap[id] = newSession;
 
 	return true;
 }
@@ -176,10 +178,10 @@ void Server::removeSession(std::int32_t id)
 	sessionMap.erase(id);
 }
 
-std::int32_t Server::findAssetIdByCrc(std::uint32_t crc) const
+std::int32_t Server::getNextUserId()
 {
-	auto it = assetMap.find(crc);
-	return it != assetMap.end() ? it->first : 0;
+	std::lock_guard<std::mutex> lock(mutex);
+	return nextUserId++;
 }
 
 ServerRef Server::getInstance()

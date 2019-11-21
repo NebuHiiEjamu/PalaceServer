@@ -5,18 +5,34 @@
 #include "../net/hive.hpp"
 #include "../net/listener.hpp"
 #include "../net/packet.hpp"
+#include "../server.hpp"
 
 PalaceConnection::PalaceConnection(HivePtr hive, ListenerPtr listener):
 	Connection(hive),
-	owner(owner),
 	listener(listener)
 {
 }
 
-void PalaceConnection::onAccept(std::string_view host, std::uint16_t port)
+void PalaceConnection::setSession(SessionRef session)
 {
-	PalaceConnectionPtr connection(new PalaceConnection(owner, hive, listener));
+	this->session = session;
+}
+
+void PalaceConnection::onAccept(std::string_view, std::uint16_t)
+{
+	PalaceConnectionPtr connection(new PalaceConnection(hive, listener));
 	listener->accept(connection);
+
+	std::int32_t id = Server::getInstance()->getNextUserId();
+	PacketHeader tiyid { idThisIsYourId, 0, id };
+	std::ostringstream stream;
+
+	stream.write(reinterpret_cast<const char*>(&tiyid), sizeof(PacketHeader));
+	std::vector<std::uint8_t> out(stream.str().begin(), stream.str().end());
+	connection->send(out);
+
+	Server::getInstance()->createSession(id, std::dynamic_pointer_cast<PalaceConnection>
+		shared_from_this()));
 }
 
 void PalaceConnection::onSend(const std::vector<std::uint8_t>&)
@@ -25,17 +41,33 @@ void PalaceConnection::onSend(const std::vector<std::uint8_t>&)
 
 void PalaceConnection::onReceive(const std::vector<std::uint8_t> &buffer)
 {
-	std::istringstream stream(std::string(buffer.begin(), buffer.end()));
+	std::istringstream inStream(std::string(buffer.begin(), buffer.end()));
 	PacketHeader header;
 
-	stream.read(reinterpret_cast<char*>(&header), sizeof(PacketHeader));
+	inStream.read(reinterpret_cast<char*>(&header), sizeof(PacketHeader));
 	switch (header.event)
 	{
 		case idLogon:
 		{
 			AuxRegistration registration;
 			stream.read(reinterpret_cast<char*>(&registration), sizeof(AuxRegistration));
-			Server::getInstance()->createSession(registration);
+			session->processRegistration(registration);
+
+			PacketHeader replyHeader = header;
+			replyHeader.event = idAltLogonReply;
+			replyHeader.refCon = session->getId();
+
+			std::ostringstream outStream;
+			outStream.write(reinterpret_cast<const char*>(&replyHeader), sizeof(PacketHeader));
+			outStream.write(reinterpret_cast<const char*>(&registration), sizeof(AuxRegistration));
+			std::vector<std::uint8_t> reply(outStream.str().begin(), outStream.str().end());
+			send(reply);
+			outStream.str(std::string());
+
+			PacketHeader versionHeader { idVersion, 0, Server::version };
+			outStream.write(reinterpret_cast<const char*>(&versionHeader), sizeof(PacketHeader));
+			std::vector<std::uint8_t> outVersion(outStream.str().begin(), outStream.str().end());
+			send(outVersion);
 			break;
 		}
 		default:

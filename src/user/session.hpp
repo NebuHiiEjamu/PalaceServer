@@ -70,17 +70,19 @@ namespace UserStatus
 
 class Session : public std::enable_shared_from_this<Session>
 {
-
 public:
-	Session(PalaceConnectionPtr, const AuxRegistration&);
+	Session(std::int32_t, PalaceConnectionPtr);
 	std::string_view getClientString() const;
 	std::string_view getPlatformString() const;
+	std::int32_t getId() const;
+	void processRegistration(const AuxRegistration&);
 private:
 	PalaceConnectionPtr connection;
 	std::string userName;
 	std::vector<std::uint8_t> password;
 	std::array<AssetRef, 9> props;
 	std::bitset<UserStatus::all> status;
+	std::int32_t id;
 	std::int16_t room;
 	std::int16_t x;
 	std::int16_t y;

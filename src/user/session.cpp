@@ -5,8 +5,13 @@
 #include "palaceconnection.hpp"
 #include "../net/packet.hpp"
 
-Session::Session(PalaceConnectionPtr connection, const AuxRegistration &registration):
-	connection(connection)
+Session::Session(std::int32_t id, PalaceConnectionPtr connection):
+	connection(connection),
+	id(id)
+{
+}
+
+void Session::processRegistration(const AuxRegistration &registration)
 {
 	userName = registration.userName.characters;
 	password = std::vector<std::uint8_t>(std::begin(registration.password.characters),
@@ -56,4 +61,9 @@ std::string_view Session::getPlatformString() const
 		case ClientPlatform::java: return "Java"; break;
 		default: return "Unknown";
 	}
+}
+
+std::int32_t Session::getId() const
+{
+	return id;
 }

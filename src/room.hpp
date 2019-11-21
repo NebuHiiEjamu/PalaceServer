@@ -101,6 +101,7 @@ private:
 	std::mutex mutex;
 	std::set<std::int32_t> users;
 	std::int32_t faces;
+	std::int16_t id;
 };
 
 #endif // _ROOM_H

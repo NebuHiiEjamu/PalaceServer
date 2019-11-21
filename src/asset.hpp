@@ -39,6 +39,7 @@ private:
 protected:
 	std::string name;
 	std::bitset<AssetStatus::all> status;
+	std::int32_t id;
 	std::uint32_t crc;
 	std::vector<std::uint8_t> data;
 	std::int32_t refCon;

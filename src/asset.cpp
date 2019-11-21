@@ -28,7 +28,7 @@ template <class Container> void Asset::generateCrc(const Container &buffer) cons
 
 template <class Container> void Asset::specToBuffer(Container &buffer) const
 {
-	AssetSpec spec { Server::getInstance()->findAssetIdByCrc(crc), crc };
+	AssetSpec spec { id, crc };
 	std::ostringstrem stream;
 	stream.write(reinterpret_cast<const char*>(&spec), sizeof(AssetSpec));
 	buffer.insert(std::back_inserter(buffer), stream.str().begin(), stream.str().end());

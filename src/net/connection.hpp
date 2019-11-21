@@ -4,8 +4,8 @@
 #include <atomic>
 #include <boost/asio.hpp>
 #include <cstdint>
-#include <list>
 #include <memory>
+#include <queue>
 #include <string>
 #include <vector>
 
@@ -31,7 +31,7 @@ private:
 	void startReceive(std::uint32_t);
 	void startSend();
 	void handleReceive(asio::error_code, std::uint32_t);
-	void handleSend(asio::error_code, std::list<std::vector<std::uint8_t>>::iterator);
+	void handleSend(asio::error_code, std::queue<std::vector<std::uint8_t>>);
 	void startError(asio::error_code);
 protected:
 	Connection(HivePtr);
@@ -47,8 +47,8 @@ protected:
 	asio::io_context::strand strand;
 	std::vector<std::uint8_t> inBuffer;
 	std::atomic_uint32_t errorState;
-	std::list<std::uint32_t> pendingReceives;
-	std::list<std::vector<std::uint8_t>> pendingSends;
+	std::queue<std::uint32_t> pendingReceives;
+	std::queue<std::vector<std::uint8_t>> pendingSends;
 	std::uint32_t inBufferSize;
 };
 

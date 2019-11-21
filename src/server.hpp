@@ -114,7 +114,7 @@ namespace ExtendedInfo
 class Server final : public std::enable_shared_from_this<Server>
 {
 public:
-	static constexpr std::uint32_t version = 0x1000016;
+	static constexpr std::int32_t version = 0x1000016;
 	
 	static constexpr ServerPlatform getPlatform();
 	static constexpr std::string_view getPlatformString();
@@ -124,9 +124,9 @@ public:
 	template <class Container> static void decode(Container&);
 
 	~Server();
-	bool createSession(PalaceConnectionPtr, const AuxRegistration&);
+	bool createSession(std::int32_t, PalaceConnectionPtr);
 	void removeSession(std::int32_t);
-	std::int32_t findAssetIdByCrc(std::uint32_t) const;
+	std::int32_t getNextUserId();
 private:
 	Server();
 private:
@@ -144,11 +144,7 @@ private:
 	std::map<std::int32_t, ImagePtr> imageMap;
 	std::map<std::int16_t, RoomPtr> roomMap;
 	sqlite3 *db;
-	std::mutex assetMutex;
-	std::mutex imageMutex;
-	std::mutex roomMutex;
-	std::mutex sessionMutex;
-	std::mutex dbMutex;
+	std::mutex mutex;
 	std::int32_t nextUserId;
 };
 

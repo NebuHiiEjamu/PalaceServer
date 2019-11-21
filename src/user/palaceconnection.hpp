@@ -9,6 +9,7 @@ class PalaceConnection : public Connection
 {
 public:
 	PalaceConnection(HivePtr, ListenerPtr);
+	void setSession(SessionRef);
 protected:
 	void onAccept(std::string_view, std::uint16_t) override;
 	void onSend(const std::vector<std::uint8_t>&) override;
@@ -16,6 +17,7 @@ protected:
 	void onError(asio::error_code) override;
 	void onDisconnect() override;
 private:
+	SessionRef session;
 	ListenerPtr listener;
 };
 
