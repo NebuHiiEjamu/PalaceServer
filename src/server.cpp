@@ -184,6 +184,26 @@ std::int32_t Server::getNextUserId()
 	return nextUserId++;
 }
 
+std::uint32_t Server::getPermissions() const
+{
+	return permissions.to_ulong();
+}
+
+std::uint32_t Server::getOptions() const
+{
+	return options.to_ulong();
+}
+
+std::string_view Server::getName() const
+{
+	return name;
+}
+
+std::string_view Server::getWebUrl() const
+{
+	return webUrl;
+}
+
 ServerRef Server::getInstance()
 {
 	return instance;

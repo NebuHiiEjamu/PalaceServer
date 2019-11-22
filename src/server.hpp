@@ -127,12 +127,17 @@ public:
 	bool createSession(std::int32_t, PalaceConnectionPtr);
 	void removeSession(std::int32_t);
 	std::int32_t getNextUserId();
+	std::uint32_t getPermissions() const;
+	std::uint32_t getOptions() const;
+	std::string_view getName() const;
+	std::string_view getWebUrl() const;
 private:
 	Server();
 private:
 	static std::shared_ptr<Server> instance;
 
 	std::string name;
+	std::string webUrl;
 	std::random_device randomDevice;
 	std::mt19937 randomEngine;
 	std::bitset<Configuration::all> configuration;

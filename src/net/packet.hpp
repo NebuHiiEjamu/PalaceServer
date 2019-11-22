@@ -117,8 +117,8 @@ struct Str63
 
 struct Point
 {
-	std::int16_t v;
-	std::int16_t h;
+	std::int16_t y;
+	std::int16_t x;
 } PACKED;
 
 struct AssetSpec
@@ -343,8 +343,6 @@ struct Packet_ServerInfo
 	std::uint32_t permissions;
 	Str63 name;
 	std::uint32_t options;
-	std::uint32_t uploadCapabilities;
-	std::uint32_t downloadCapabilities;
 } PACKED;
 
 struct Packet_SpotMove

@@ -68,6 +68,31 @@ void PalaceConnection::onReceive(const std::vector<std::uint8_t> &buffer)
 			outStream.write(reinterpret_cast<const char*>(&versionHeader), sizeof(PacketHeader));
 			std::vector<std::uint8_t> outVersion(outStream.str().begin(), outStream.str().end());
 			send(outVersion);
+			outStream.str(std::string());
+
+			PacketHeader infoHeader { idServerInfo, sizeof(Packet_ServerInfo), session->getId() };
+			Packet_ServerInfo serverInfo
+			{
+				Server::getInstance()->getPermissions(),
+				Str63
+				{
+					Server::getInstance()->getName().size(),
+					Server::getInstance()->getName().c_str()
+				},
+				Server::getInstance()->getOptions()
+			};
+			outStream.write(reinterpret_cast<const char*>(&infoHeader), sizeof(PacketHeader));
+			outStream.write(reinterpret_cast<const char*>(&serverInfo), sizeof(Packet_ServerInfo));
+			std::vector<std::uint8_t> outInfo(outStream.str().begin(), outStream.str().end());
+			send(outInfo);
+			outStream.str(std::string());
+
+			PacketHeader userFlagsHeader { idUserStatus, sizeof(std::uint16_t), session->getId() };
+			std::uint16_t userFlags = session->getStatus();
+			outStream.write(reinterpret_cast<const char*>(&userFlagsHeader), sizeof(PacketHeader));
+			outStream.write(reinterpret_cast<const char*>(&userFlags), sizeof(std::uint16_t));
+			std::vector<std::uint8_t> outFlags(outStream.str().begin(), outStream.str().end());
+			send(outFlags);
 			break;
 		}
 		default:

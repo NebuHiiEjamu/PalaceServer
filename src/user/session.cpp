@@ -67,3 +67,15 @@ std::int32_t Session::getId() const
 {
 	return id;
 }
+
+std::uint16_t Session::getStatus()
+{
+	std::lock_guard<std::mutex>(mutex);
+	return static_cast<std::uint16_t>(status.to_ulong());
+}
+
+void Session::setStatus(std::uint16_t flags)
+{
+	std::lock_guard<std::mutex>(mutex);
+	status = std::bitset<UserStatus::all>(flags);
+}
