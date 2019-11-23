@@ -199,9 +199,9 @@ std::string_view Server::getName() const
 	return name;
 }
 
-std::string_view Server::getWebUrl() const
+std::string_view Server::getContentbUrl() const
 {
-	return webUrl;
+	return contentUrl;
 }
 
 ServerRef Server::getInstance()

@@ -13,8 +13,8 @@ asio::io_context& Hive::getIOContext()
 
 bool Hive::stopped()
 {
-	std::uint32_t v1 = 1;
-	std::uint32_t v2 = 1;
+	uint32 v1 = 1;
+	uint32 v2 = 1;
 	return shutdownSignal.compare_exchange_strong(v1, v2);
 }
 
@@ -30,8 +30,8 @@ void Hive::run()
 
 void Hive::stop()
 {
-	std::uint32_t v1 = 1;
-	std::uint32_t v2 = 0;
+	uint32 v1 = 1;
+	uint32 v2 = 0;
 
 	if (!shutdownSignal.compare_exchange_strong(v1, v2))
 	{
@@ -43,8 +43,8 @@ void Hive::stop()
 
 void Hive::reset()
 {
-	std::uint32_t v1 = 0;
-	std::uint32_t v2 = 1;
+	uint32 v1 = 0;
+	uint32 v2 = 1;
 
 	if (shutdownSignal.compare_exchange_strong(v1, v2))
 	{

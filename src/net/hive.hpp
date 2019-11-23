@@ -2,9 +2,8 @@
 #define _HIVE_H
 
 #include <atomic>
-#include <boost/asio.hpp>
-#include <cstdint>
-#include <memory>
+
+#include "../common.hpp"
 
 using boost::asio;
 

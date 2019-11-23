@@ -2,54 +2,48 @@
 #define _CONNECTION_H
 
 #include <atomic>
-#include <boost/asio.hpp>
-#include <cstdint>
-#include <memory>
 #include <queue>
-#include <string>
-#include <vector>
 
 #include "forward.hpp"
-
-using boost::asio;
+#include "../common.hpp"
 
 class Connection : public std::enable_shared_from_this<Connection>
 {
 public:
 	HivePtr getHive();
-	asio::io_context::strand& getStrand();
-	asio::ip::tcp::socket& getSocket();
-	std::uint32_t getInBufferSize() const;
-	void setInBufferSize(std::uint32_t);
+	Strand& getStrand();
+	Socket& getSocket();
+	uint32 getInBufferSize() const;
+	void setInBufferSize(uint32);
 	bool hasError();
 	void disconnect();
-	void receive(std::uint32_t);
-	void send(const std::vector<std::uint8_t>&);
+	void receive(uint32);
+	void send(const ByteString&);
 private:
-	void dispatchReceive(std::uint32_t);
-	void dispatchSend(const std::vector<std::uint8_t>&);
-	void startReceive(std::uint32_t);
+	void dispatchReceive(uint32);
+	void dispatchSend(const ByteString&);
+	void startReceive(uint32);
 	void startSend();
-	void handleReceive(asio::error_code, std::uint32_t);
-	void handleSend(asio::error_code, std::queue<std::vector<std::uint8_t>>);
-	void startError(asio::error_code);
+	void handleReceive(Error, uint32);
+	void handleSend(Error, const ByteString&);
+	void startError(Error);
 protected:
 	Connection(HivePtr);
-	virtual void onAccept(std::string_view, std::uint16_t);
-	virtual void onConnect(std::string_view, std::uint16_t);
-	virtual void onSend(const std::vector<std::uint8_t>&);
-	virtual void onReceive(const std::vector<std::uint8_t>&);
-	virtual void onError(asio::error_code);
+	virtual void onAccept(std::string_view, uint16);
+	virtual void onConnect(std::string_view, uint16);
+	virtual void onSend(const ByteString&);
+	virtual void onReceive(ByteString&);
+	virtual void onError(Error);
 	virtual void onDisconnect();
 protected:
 	HivePtr hive;
-	asio::ip::tcp::socket socket;
-	asio::io_context::strand strand;
-	std::vector<std::uint8_t> inBuffer;
+	Socket socket;
+	Strand strand;
+	ByteString inBuffer;
 	std::atomic_uint32_t errorState;
-	std::queue<std::uint32_t> pendingReceives;
-	std::queue<std::vector<std::uint8_t>> pendingSends;
-	std::uint32_t inBufferSize;
+	std::queue<uint32> pendingReceives;
+	std::queue<ByteString> pendingSends;
+	uint32 inBufferSize;
 };
 
 #endif // _CONNECTION_H

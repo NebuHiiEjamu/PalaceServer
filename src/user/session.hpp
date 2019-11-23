@@ -3,16 +3,13 @@
 
 #include <array>
 #include <bitset>
-#include <cstdint>
-#include <mutex>
-#include <string>
-#include <vector>
 
 #include "forward.hpp"
 #include "../forward.hpp"
 #include "../net/forward.hpp"
+#include "../common.hpp"
 
-enum class Client : std::uint8_t
+enum class Client : Byte
 {
 	unknown,
 	thePalace,
@@ -21,7 +18,7 @@ enum class Client : std::uint8_t
 	palaceChat
 };
 
-enum class ClientPlatform : std::uint8_t
+enum class ClientPlatform : Byte
 {
 	unknown = 0,
 	mac68k,
@@ -31,7 +28,7 @@ enum class ClientPlatform : std::uint8_t
 	java
 };
 
-enum class Face : std::uint8_t
+enum class Face : Byte
 {
 	closed,
 	smile,
@@ -72,24 +69,24 @@ namespace UserStatus
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-	Session(std::int32_t, PalaceConnectionPtr);
+	Session(int32, PalaceConnectionPtr);
 	std::string_view getClientString() const;
 	std::string_view getPlatformString() const;
-	std::int32_t getId() const;
-	std::uint16_t getStatus();
-	void setStatus(std::uint16_t);
-	void processRegistration(const AuxRegistration&);
+	int32 getId() const;
+	uint16 getStatus();
+	void setStatus(uint16);
+	void processRegistration(ByteBuffer&);
 private:
 	PalaceConnectionPtr connection;
 	std::string userName;
-	std::vector<std::uint8_t> password;
+	std::vector<Byte> password;
 	std::array<AssetRef, 9> props;
 	std::mutex mutex;
 	std::bitset<UserStatus::all> status;
-	std::int32_t id;
-	std::int16_t room;
-	std::int16_t x;
-	std::int16_t y;
+	int32 id;
+	int16 room;
+	int16 x;
+	int16 y;
 	Client client;
 	ClientPlatform platform;
 	Face face;

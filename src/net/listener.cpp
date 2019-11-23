@@ -17,29 +17,29 @@ HivePtr Listener::getHive()
 	return hive;
 }
 
-Listener::Acceptor& Listener::getListener()
+Acceptor& Listener::getListener()
 {
 	return acceptor;
 }
 
-asio::io_context::strand& Listener::getStrand()
+Strand& Listener::getStrand()
 {
 	return strand;
 }
 
 bool Listener::hasError()
 {
-	std::uint32_t v1 = 1;
-	std::uint32_t v2 = 1;
+	uint32 v1 = 1;
+	uint32 v2 = 1;
 	return errorState.compare_exchange_strong(v1, v2);
 }
 
-void Listener::listen(std::string_view host, std::uint16_t port)
+void Listener::listen(std::string_view host, uint16 port)
 {
 	try
 	{
-		Resolver resolver(hive->getService());
-		Endpoint endpoint = resolver.resolve(host, std::to_string(port));
+		asio::ip::tcp::resolver resolver(hive->getService());
+		asio::ip::tcp::endpoint endpoint = resolver.resolve(host, std::to_string(port));
 
 		acceptor.open(endpoint.protocol());
 		acceptor.set_option(Acceptor::reuse_address(false));
@@ -52,7 +52,7 @@ void Listener::listen(std::string_view host, std::uint16_t port)
 	}
 }
 
-void Listener::handleAccept(asio::error_code error, ConnectionPtr connection)
+void Listener::handleAccept(Error error, ConnectionPtr connection)
 {
 	if (error || hasError() || hive->stopped())
 		connection->startError(error);
@@ -85,11 +85,11 @@ void Listener::accept(ConnectionPtr connection)
 	strand.post(std::bind(&Listener::dispatchAccept, shared_from_this(), connection));
 }
 
-bool Listener::onAccept(ConnectionPtr, std::string_view, std::uint16_t)
+bool Listener::onAccept(ConnectionPtr, std::string_view, uint16)
 {
 	return true;
 }
 
-void Listener::onError(asio::error_code)
+void Listener::onError(Error)
 {
 }

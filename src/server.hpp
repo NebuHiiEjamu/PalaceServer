@@ -130,14 +130,14 @@ public:
 	std::uint32_t getPermissions() const;
 	std::uint32_t getOptions() const;
 	std::string_view getName() const;
-	std::string_view getWebUrl() const;
+	std::string_view getContentUrl() const;
 private:
 	Server();
 private:
 	static std::shared_ptr<Server> instance;
 
 	std::string name;
-	std::string webUrl;
+	std::string contentUrl;
 	std::random_device randomDevice;
 	std::mt19937 randomEngine;
 	std::bitset<Configuration::all> configuration;

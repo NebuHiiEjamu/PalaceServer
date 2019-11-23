@@ -11,13 +11,18 @@ Session::Session(std::int32_t id, PalaceConnectionPtr connection):
 {
 }
 
-void Session::processRegistration(const AuxRegistration &registration)
+void Session::processRegistration(ByteBuffer &buffer)
 {
-	userName = registration.userName.characters;
-	password = std::vector<std::uint8_t>(std::begin(registration.password.characters),
-		std::end(registration.password.characters + 31));
+	buffer.readNull(8); // serial number
+	userName = buffer.readS31(true);
+	password = buffer.readS31(true);
+	uint32 flags = buffer.readU32();
+	buffer.readNull(20); // pseudo serial number (8) + demo data (12)
+	uint32 desiredRoom = buffer.readI16();
+	std::array<char, 6> reserved = buffer.read(6); // usually client identifier
+	buffer.readNull(24); // req. protocol ver (4) + capabilities (20)
 	
-	switch (registration.flags & 0xF)
+	switch (flags & 0xF)
 	{
 		case 1: platform = ClientPlatform::mac68k; break;
 		case 2: platform = ClientPlatform::macPPC; break;
@@ -27,13 +32,13 @@ void Session::processRegistration(const AuxRegistration &registration)
 		default: platform = ClientPlatform::unknown;
 	}
 
-	if (std::strncmp(registration.reserved, "PC4237", 6) == 0)
+	if (std::strncmp(reserved.data(), "PC4237", 6) == 0)
 		client = Client::openPalace;
-	else if (std::strncmp(registration.reserved, "OPNPAL", 6) == 0)
+	else if (std::strncmp(reserved.data(), "OPNPAL", 6) == 0)
 		client = Client::palaceChat;
-	else if (std::strncmp(registration.reserved, "350211", 6) == 0)
+	else if (std::strncmp(reserved.data(), "350211", 6) == 0)
 		client = Client::thePalace;
-	else if (std::strncmp(registration.reserved, "J2.0\0\0", 6) == 0)
+	else if (std::strncmp(reserved.data(), "J2.0\0\0", 6) == 0)
 		client = Client::instantPalace;
 	else client = Client::unknown;
 }
@@ -70,12 +75,12 @@ std::int32_t Session::getId() const
 
 std::uint16_t Session::getStatus()
 {
-	std::lock_guard<std::mutex>(mutex);
-	return static_cast<std::uint16_t>(status.to_ulong());
+	LockGuard(mutex);
+	return static_cast<uint16>(status.to_ulong());
 }
 
-void Session::setStatus(std::uint16_t flags)
+void Session::setStatus(uint16 flags)
 {
-	std::lock_guard<std::mutex>(mutex);
+	LockGuard(mutex);
 	status = std::bitset<UserStatus::all>(flags);
 }

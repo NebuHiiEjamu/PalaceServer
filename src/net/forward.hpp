@@ -3,7 +3,6 @@
 
 #include <memory>
 
-struct AuxRegistration;
 class Connection;
 class Hive;
 class Listener;

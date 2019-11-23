@@ -1,6 +1,3 @@
-#include <iterator>
-#include <sstream>
-
 #include "palaceconnection.hpp"
 #include "../net/hive.hpp"
 #include "../net/listener.hpp"
@@ -18,41 +15,42 @@ void PalaceConnection::setSession(SessionRef session)
 	this->session = session;
 }
 
-void PalaceConnection::onAccept(std::string_view, std::uint16_t)
+void PalaceConnection::onAccept(std::string_view, uint16)
 {
 	PalaceConnectionPtr connection(new PalaceConnection(hive, listener));
 	listener->accept(connection);
 
-	std::int32_t id = Server::getInstance()->getNextUserId();
-	PacketHeader tiyid { idThisIsYourId, 0, id };
-	std::ostringstream stream;
+	ByteBuffer tiyid;
 
-	stream.write(reinterpret_cast<const char*>(&tiyid), sizeof(PacketHeader));
-	std::vector<std::uint8_t> out(stream.str().begin(), stream.str().end());
-	connection->send(out);
+	// Have the server send the user their ID upon connection
+	int32 id = Server::getInstance()->getNextUserId();
+	tiyid.writeU32(idThisIsYourId);
+	tiyid.writeU32(0);
+	tiyid.writeI32(id);
+	connection->send(tiyid.getBytes());
 
 	Server::getInstance()->createSession(id, std::dynamic_pointer_cast<PalaceConnection>
 		shared_from_this()));
 }
 
-void PalaceConnection::onSend(const std::vector<std::uint8_t>&)
+void PalaceConnection::onSend(const ByteString&)
 {
 }
 
-void PalaceConnection::onReceive(const std::vector<std::uint8_t> &buffer)
+void PalaceConnection::onReceive(ByteString &inString)
 {
-	std::istringstream inStream(std::string(buffer.begin(), buffer.end()));
-	PacketHeader header;
+	ByteBuffer buffer(inString);
+	uint32 event = buffer.readU32();
+	buffer.readNull(8); // size and ref num not needed, todo: check if malformed?
 
-	inStream.read(reinterpret_cast<char*>(&header), sizeof(PacketHeader));
-	switch (header.event)
+	switch (event)
 	{
 		case idLogon:
 		{
-			AuxRegistration registration;
-			stream.read(reinterpret_cast<char*>(&registration), sizeof(AuxRegistration));
-			session->processRegistration(registration);
+			// Process user and client details
+			session->processRegistration(buffer);
 
+			// Return the same packet as a logon reply and ref num set to the user ID
 			PacketHeader replyHeader = header;
 			replyHeader.event = idAltLogonReply;
 			replyHeader.refCon = session->getId();
@@ -60,16 +58,18 @@ void PalaceConnection::onReceive(const std::vector<std::uint8_t> &buffer)
 			std::ostringstream outStream;
 			outStream.write(reinterpret_cast<const char*>(&replyHeader), sizeof(PacketHeader));
 			outStream.write(reinterpret_cast<const char*>(&registration), sizeof(AuxRegistration));
-			std::vector<std::uint8_t> reply(outStream.str().begin(), outStream.str().end());
+			ByteBuffer reply(outStream.str().begin(), outStream.str().end());
 			send(reply);
 			outStream.str(std::string());
 
+			// Also, send the server version
 			PacketHeader versionHeader { idVersion, 0, Server::version };
 			outStream.write(reinterpret_cast<const char*>(&versionHeader), sizeof(PacketHeader));
-			std::vector<std::uint8_t> outVersion(outStream.str().begin(), outStream.str().end());
+			ByteBuffer outVersion(outStream.str().begin(), outStream.str().end());
 			send(outVersion);
 			outStream.str(std::string());
 
+			// And then the server info
 			PacketHeader infoHeader { idServerInfo, sizeof(Packet_ServerInfo), session->getId() };
 			Packet_ServerInfo serverInfo
 			{
@@ -83,15 +83,16 @@ void PalaceConnection::onReceive(const std::vector<std::uint8_t> &buffer)
 			};
 			outStream.write(reinterpret_cast<const char*>(&infoHeader), sizeof(PacketHeader));
 			outStream.write(reinterpret_cast<const char*>(&serverInfo), sizeof(Packet_ServerInfo));
-			std::vector<std::uint8_t> outInfo(outStream.str().begin(), outStream.str().end());
+			ByteBuffer outInfo(outStream.str().begin(), outStream.str().end());
 			send(outInfo);
 			outStream.str(std::string());
 
-			PacketHeader userFlagsHeader { idUserStatus, sizeof(std::uint16_t), session->getId() };
-			std::uint16_t userFlags = session->getStatus();
+			// Followed by the user flags
+			PacketHeader userFlagsHeader { idUserStatus, sizeof(uint16), session->getId() };
+			uint16 userFlags = session->getStatus();
 			outStream.write(reinterpret_cast<const char*>(&userFlagsHeader), sizeof(PacketHeader));
-			outStream.write(reinterpret_cast<const char*>(&userFlags), sizeof(std::uint16_t));
-			std::vector<std::uint8_t> outFlags(outStream.str().begin(), outStream.str().end());
+			outStream.write(reinterpret_cast<const char*>(&userFlags), sizeof(uint16));
+			ByteBuffer outFlags(outStream.str().begin(), outStream.str().end());
 			send(outFlags);
 			break;
 		}

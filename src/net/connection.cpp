@@ -3,6 +3,8 @@
 #include "connection.hpp"
 #include "hive.hpp"
 
+using boost::asio;
+
 Connection::Connection(HivePtr hive):
 	hive(hive),
 	socket(hive->getIOContext()),
@@ -16,20 +18,20 @@ HivePtr Connection::getHive()
 	return hive;
 }
 
-asio::io_context::strand& Connection::getStrand()
+Strand& Connection::getStrand()
 {
 	return strand;
 }
 
-asio::ip::tcp::socket& Connection::getSocket()
+Socket& Connection::getSocket()
 {
 	return socket;
 }
 
 bool Connection::hasError()
 {
-	std::uint32_t v1 = 1;
-	std::uint32_t v2 = 1;
+	uint32 v1 = 1;
+	uint32 v2 = 1;
 	return errorState.compare_exchange_strong(v1, v2);
 }
 
@@ -39,14 +41,14 @@ void Connection::disconnect()
 	socket.close();
 }
 
-void Connection::startError(asio::error_code error)
+void Connection::startError(Error error)
 {
-	std::uint32_t v1 = 1;
-	std::uint32_t v2 = 0;
+	uint32 v1 = 1;
+	uint32 v2 = 0;
 
 	if (!errorState.compare_exchange_strong(v1, v2))
 	{
-		asio::error_code errorCode;
+		Error errorCode;
 
 		socket.shutdown(Socket::shutdown_both, errorCode);
 		socket.close(errorCode);
@@ -54,20 +56,20 @@ void Connection::startError(asio::error_code error)
 	}
 }
 
-void Connection::dispatchReceive(std::uint32_t totalBytes)
+void Connection::dispatchReceive(uint32 totalBytes)
 {
 	pendingReceives.push(totalBytes);
 	if (pendingReceives.empty()) startReceive(totalBytes);
 }
 
-void Connection::dispatchSend(const std::vector<std::uint8_t> &buffer)
+void Connection::dispatchSend(const ByteString &outString)
 {
 	bool shouldStartSend = pendingSends.empty();
-	pendingSends.push(buffer);
+	pendingSends.push(outString);
 	if (shouldStartSend) startSend();
 }
 
-void Connection::startReceive(std::uint32_t totalBytes)
+void Connection::startReceive(uint32 totalBytes)
 {
 	if (totalBytes > 0)
 	{
@@ -93,7 +95,7 @@ void Connection::startSend()
 			pendingSends.begin())));
 }
 
-void Connection::handleReceive(asio::error_code error, std::uint32_t receivedBytes)
+void Connection::handleReceive(Error error, uint32 receivedBytes)
 {
 	if (error || hasError() || hive->stopped()) startError(error);
 	else
@@ -106,54 +108,54 @@ void Connection::handleReceive(asio::error_code error, std::uint32_t receivedByt
 	}
 }
 
-void Connection::handleSend(asio::error_code error, std::vector<std::uint8_t> &message)
+void Connection::handleSend(Error error, const ByteString &outString)
 {
 	if (error || hasError() || hive->stopped()) startError(error);
 	else
 	{
-		onSend(message);
+		onSend(outString);
 		pendingSends.pop();
 		startSend();
 	}
 }
 
-void Connection::receive(std::uint32_t totalBytes = 0)
+void Connection::receive(uint32 totalBytes = 0)
 {
 	strand.post(std::bind(&Connection::dispatchReceive, shared_from_this(), totalBytes));
 }
 
-void Connection::send(const std::vector<std::uint8_t> &buffer)
+void Connection::send(const ByteString &outString)
 {
 	strand.post(std::bind(&Connection::dispatchSend, shared_from_this(), buffer));
 }
 
-std::uint32_t Connection::getInBufferSize() const
+uint32 Connection::getInBufferSize() const
 {
 	return inBufferSize;
 }
 
-void Connection::setInBufferSize(std::uint32_t newSize)
+void Connection::setInBufferSize(uint32 newSize)
 {
 	inBufferSize = newSize;
 }
 
-void Connection::onAccept(std::string_view, std::uint16_t)
+void Connection::onAccept(std::string_view, uint16)
 {
 }
 
-void Connection::onConnect(std::string_view, std::uint16_t)
+void Connection::onConnect(std::string_view, uint16)
 {
 }
 
-void Connection::onSend(const std::vector<std::uint8_t>&)
+void Connection::onSend(const ByteString&)
 {
 }
 
-void Connection::onReceive(const std::vector<std::uint8_t>&)
+void Connection::onReceive(ByteString&)
 {
 }
 
-void Connection::onError(asio::error_code)
+void Connection::onError(Error)
 {
 }
 
