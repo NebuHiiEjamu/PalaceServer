@@ -6,54 +6,56 @@
 #include "user/palaceconnection.hpp"
 #include "user/session.hpp"
 
-static const std::array<std::uint32_t, 512> generateLookUpTable()
-{
-	std::uint32_t key = 666666;
-	std::uint32_t quotient, remainder, k;
-	std::array<std::uint32_t, 512> result;
+using LookupTable = std::array<std::uint32, 512>;
 
-	for (std::uint32_t &i : result)
+static const LookupTable generateLookUpTable()
+{
+	uint32 key = 666666;
+	uint32 quotient, remainder, k;
+	LookupTable result;
+
+	for (uint32 &i : result)
 	{
 		quotient = key / 127773;
 		remainder = key / 127773;
 		k = 16807 * remainder - 2836 * quotient;
 		key = k > 0 ? k : 2147483647;
-		i = static_cast<std::uint32_t>(static_cast<double>(key / 2147483647 * 256));
+		i = static_cast<uint32>(static_cast<double>(key / 2147483647 * 256));
 	}
 
 	return result;
 }
 
-static const std::array<std::uint32_t, 512> lookUpTable = generateLookUpTable();
+static const LookupTable lookUpTable = generateLookUpTable();
 std::shared_ptr<Server> Server::instance = std::make_shared<Server>();
 
-template <class Container> void Server::encode(Container &buffer)
+void Server::encode(ByteString &inString)
 {
-	std::uint8_t lastChar = 0;
-	std::uint32_t rc = 0;
-	std::uint8_t b;
+	Byte lastChar = 0;
+	uint32 rc = 0;
+	Byte b;
 
-	if (buffer.size() > 254) buffer.resize(254);
+	if (inString.size() > 254) inString.resize(254);
 
-	for (auto &i : buffer)
+	for (auto &i : inString)
 	{
 		b = i;
-		i = static_cast<std::uint8_t>(b ^ lookUpTable[rc++] ^ lastChar);
-		lastChar = static_cast<std::uint8_t>(i ^ lookUpTable[rc++]);
+		i = static_cast<Byte>(b ^ lookUpTable[rc++] ^ lastChar);
+		lastChar = static_cast<Byte>(i ^ lookUpTable[rc++]);
 	}
 }
 
-template <class Container> void Server::decode(Container &buffer)
+void Server::decode(ByteString &inString)
 {
-	std::uint8_t lastChar = 0;
-	std::uint32_t rc = 0;
-	std::uint8_t b;
+	Byte lastChar = 0;
+	uint32 rc = 0;
+	Byte b;
 
 	for (auto &i : buffer)
 	{
 		b = i;
-		i = static_cast<std::uint8_t>(b ^ lookUpTable[rc++] ^ lastChar);
-		lastChar = static_cast<std::uint8_t>(b ^ lookUpTable[rc++]);
+		i = static_cast<Byte>(b ^ lookUpTable[rc++] ^ lastChar);
+		lastChar = static_cast<Byte>(b ^ lookUpTable[rc++]);
 	}
 }
 
@@ -163,9 +165,9 @@ Server::Server():
 {
 }
 
-bool Server::createSession(std::int32_t id, PalaceConnectionPtr connection)
+bool Server::createSession(int32 id, PalaceConnectionPtr connection)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	LockGuard lock(mutex);
 	SessionPtr newSession = std::make_shared<Session>(id, connection);
 	connection->setSession(newSession);
 	sessionMap[id] = newSession;
@@ -173,23 +175,23 @@ bool Server::createSession(std::int32_t id, PalaceConnectionPtr connection)
 	return true;
 }
 
-void Server::removeSession(std::int32_t id)
+void Server::removeSession(int32 id)
 {
 	sessionMap.erase(id);
 }
 
-std::int32_t Server::getNextUserId()
+int32 Server::getNextUserId()
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	LockGuard lock(mutex);
 	return nextUserId++;
 }
 
-std::uint32_t Server::getPermissions() const
+uint32 Server::getPermissions() const
 {
 	return permissions.to_ulong();
 }
 
-std::uint32_t Server::getOptions() const
+uint32 Server::getOptions() const
 {
 	return options.to_ulong();
 }

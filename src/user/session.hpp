@@ -79,7 +79,7 @@ public:
 private:
 	PalaceConnectionPtr connection;
 	std::string userName;
-	std::vector<Byte> password;
+	ByteString password;
 	std::array<AssetRef, 9> props;
 	std::mutex mutex;
 	std::bitset<UserStatus::all> status;

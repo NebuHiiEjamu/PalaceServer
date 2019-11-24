@@ -2,10 +2,9 @@
 #define _ROOM_H
 
 #include <bitset>
-#include <mutex>
 #include <set>
-#include <string>
-#include <vector>
+
+#include "common.hpp"
 
 namespace ScriptEvents
 {
@@ -43,9 +42,9 @@ namespace ScriptEvents
 class State
 {
 private:
-	std::int32_t image;
-	std::int16_t imageX;
-	std::int16_t imageY;
+	int32 image;
+	int16 imageX;
+	int16 imageY;
 };
 
 class Spot : public std::enable_shared_from_this<Spot>
@@ -54,19 +53,19 @@ private:
 	std::string name;
 	std::string script;
 	std::bitset<ScriptEvents::all> scriptEvents;
-	std::vector<std::pair<std::int16_t, std::int16_t>> points;
+	std::vector<std::pair<int16, int16>> points;
 	State state;
-	std::int16_t x;
-	std::int16_t y;
+	int16 x;
+	int16 y;
 };
 
 class LooseProp : public Asset
 {
 public:
-	template <class Container> void toBuffer(Container&) const;
+	void toBuffer(ByteBuffer&) const;
 private:
-	std::int16_t x;
-	std::int16_t y;
+	int16 x;
+	int16 y;
 };
 
 namespace RoomStatus
@@ -94,14 +93,14 @@ private:
 	std::string name;
 	std::string artist;
 	std::string background;
-	std::vector<std::uint8_t> password;
+	ByteString password;
 	std::vector<LooseProp> looseProps;
 	std::vector<Spot> spots;
 	std::bitset<RoomStatus::all> status;
 	std::mutex mutex;
-	std::set<std::int32_t> users;
-	std::int32_t faces;
-	std::int16_t id;
+	std::set<int32> users;
+	int32 faces;
+	int16 id;
 };
 
 #endif // _ROOM_H

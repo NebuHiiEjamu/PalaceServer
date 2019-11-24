@@ -13,7 +13,7 @@ public:
 protected:
 	void onAccept(std::string_view, uint16) override;
 	void onSend(const ByteString&) override;
-	void onReceive(const ByteString&) override;
+	void onReceive(ByteString&) override;
 	void onError(Error) override;
 	void onDisconnect() override;
 private:

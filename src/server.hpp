@@ -2,18 +2,17 @@
 #define _SERVER_H
 
 #include <bitset>
-#include <cstdint>
 #include <map>
 #include <mutex>
 #include <random>
 #include <sqlite3.h>
-#include <string>
 
 #include "net/forward.hpp"
 #include "user/forward.hpp"
 #include "forward.hpp"
+#include "common.hpp"
 
-enum class ServerPlatform : std::uint8_t
+enum class ServerPlatform : Byte
 {
 	macintosh = 0,
 	windows9X,
@@ -21,7 +20,7 @@ enum class ServerPlatform : std::uint8_t
 	unix
 };
 
-enum class ServerDown : std::int32_t
+enum class ServerDown : int32
 {
 	unknown = 0,
 	loggedOff,
@@ -114,21 +113,21 @@ namespace ExtendedInfo
 class Server final : public std::enable_shared_from_this<Server>
 {
 public:
-	static constexpr std::int32_t version = 0x1000016;
+	static constexpr int32 version = 0x1000016;
 	
 	static constexpr ServerPlatform getPlatform();
 	static constexpr std::string_view getPlatformString();
 	static constexpr std::string_view getDefaultDatabase();
 	static ServerRef getInstance();
-	template <class Container> static void encode(Container&);
-	template <class Container> static void decode(Container&);
+	static void encode(ByteString&);
+	static void decode(ByteString&);
 
 	~Server();
-	bool createSession(std::int32_t, PalaceConnectionPtr);
-	void removeSession(std::int32_t);
-	std::int32_t getNextUserId();
-	std::uint32_t getPermissions() const;
-	std::uint32_t getOptions() const;
+	bool createSession(int32, PalaceConnectionPtr);
+	void removeSession(int32);
+	int32 getNextUserId();
+	uint32 getPermissions() const;
+	uint32 getOptions() const;
 	std::string_view getName() const;
 	std::string_view getContentUrl() const;
 private:
@@ -144,13 +143,13 @@ private:
 	std::bitset<ExtendedInfo::all> extendedInfo;
 	std::bitset<Permissions::all> permissions;
 	std::bitset<Options::all> options;
-	std::map<std::int32_t, SessionPtr> sessionMap;
-	std::map<std::int32_t, AssetPtr> assetMap;
-	std::map<std::int32_t, ImagePtr> imageMap;
-	std::map<std::int16_t, RoomPtr> roomMap;
+	std::map<int32, SessionPtr> sessionMap;
+	std::map<int32, AssetPtr> assetMap;
+	std::map<int32, ImagePtr> imageMap;
+	std::map<int16, RoomPtr> roomMap;
 	sqlite3 *db;
 	std::mutex mutex;
-	std::int32_t nextUserId;
+	int32 nextUserId;
 };
 
 #endif // _SERVER_H

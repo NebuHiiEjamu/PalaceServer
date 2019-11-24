@@ -26,6 +26,7 @@ class ByteBuffer : std::enable_shared_from_this<ByteBuffer>
 public:
 	ByteBuffer();
 	ByteBuffer(ByteString&);
+	ByteBuffer&& clone(std::size_t) const;
 	ByteString& getBytes() const;
 	void setBytes(ByteString&);
 	void flush();

@@ -1,22 +1,12 @@
-#include <iterator>
-#include <sstream>
-
 #include "room.hpp"
-#include "server.hpp"
-#include "net/packet.hpp"
 
-template <class Container> void LooseProp::toBuffer(Container &buffer) const
+void LooseProp::toBuffer(ByteBuffer &buffer) const
 {
-	LoosePropRec rec
-	{
-		emptyLink,
-		AssetSpec { Server::getInstance()->findAssetIdByCrc(crc), crc },
-		status.to_ulong(),
-		refCon,
-		Point { x, y }
-	};
-
-	std::ostringstrem stream;
-	stream.write(reinterpret_cast<const char*>(&rec), sizeof(LoosePropRec));
-	buffer.insert(std::back_inserter(buffer), stream.str().begin(), stream.str().end());
+	buffer.writeNull(8); // unused LLRec
+	buffer.writeI32(id);
+	buffer.writeU32(crc);
+	buffer.writeU32(status.to_ulong());
+	buffer.writeI32(refCon);
+	buffer.writeI16(y);
+	buffer.writeI16(x);
 }

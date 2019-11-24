@@ -15,6 +15,13 @@ ByteBuffer::ByteBuffer(ByteString &inString):
 {
 }
 
+ByteBuffer&& ByteBuffer::clone(std::size_t bytes) const
+{
+	ByteBuffer newBuffer;
+	newBuffer.data.insert(std::back_inserter(data), position, position + bytes);
+	return std::move(newBuffer);
+}
+
 ByteString& ByteBuffer::getBytes() const
 {
 	return data;

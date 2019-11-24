@@ -41,59 +41,51 @@ void PalaceConnection::onReceive(ByteString &inString)
 {
 	ByteBuffer buffer(inString);
 	uint32 event = buffer.readU32();
-	buffer.readNull(8); // size and ref num not needed, todo: check if malformed?
+	uint32 size = buffer.readU32();
+	int32 refNum = buffer.readI32();
 
 	switch (event)
 	{
 		case idLogon:
 		{
+			// Copy the registration data for our reply back
+			ByteBuffer regi = buffer.clone(size);
+
 			// Process user and client details
 			session->processRegistration(buffer);
 
 			// Return the same packet as a logon reply and ref num set to the user ID
-			PacketHeader replyHeader = header;
-			replyHeader.event = idAltLogonReply;
-			replyHeader.refCon = session->getId();
-
-			std::ostringstream outStream;
-			outStream.write(reinterpret_cast<const char*>(&replyHeader), sizeof(PacketHeader));
-			outStream.write(reinterpret_cast<const char*>(&registration), sizeof(AuxRegistration));
-			ByteBuffer reply(outStream.str().begin(), outStream.str().end());
-			send(reply);
-			outStream.str(std::string());
+			ByteBuffer rep2;
+			rep2.writeU32(idAltLogonReply);
+			rep2.writeU32(size);
+			rep2.writeI32(session->getId());
+			rep2.write(regi.getBytes());
+			send(rep2.getBytes());
 
 			// Also, send the server version
-			PacketHeader versionHeader { idVersion, 0, Server::version };
-			outStream.write(reinterpret_cast<const char*>(&versionHeader), sizeof(PacketHeader));
-			ByteBuffer outVersion(outStream.str().begin(), outStream.str().end());
-			send(outVersion);
-			outStream.str(std::string());
+			ByteBuffer vers;
+			vers.writeU32(idVersion);
+			vers.writeU32(0);
+			vers.writeI32(Server::version);
+			send(vers.getBytes());
 
 			// And then the server info
-			PacketHeader infoHeader { idServerInfo, sizeof(Packet_ServerInfo), session->getId() };
-			Packet_ServerInfo serverInfo
-			{
-				Server::getInstance()->getPermissions(),
-				Str63
-				{
-					Server::getInstance()->getName().size(),
-					Server::getInstance()->getName().c_str()
-				},
-				Server::getInstance()->getOptions()
-			};
-			outStream.write(reinterpret_cast<const char*>(&infoHeader), sizeof(PacketHeader));
-			outStream.write(reinterpret_cast<const char*>(&serverInfo), sizeof(Packet_ServerInfo));
-			ByteBuffer outInfo(outStream.str().begin(), outStream.str().end());
-			send(outInfo);
-			outStream.str(std::string());
+			ByteBuffer sinf;
+			sinf.writeU32(idServerInfo);
+			sinf.writeU32(8 + Server::getInstance()->getName().size());
+			sinf.writeI32(session->getId());
+			sinf.writeU32(Server::getInstance()->getPermissions());
+			sinf.writeS63(Server::getInstance()->getName());
+			sinf.writeU32(Server::getInstance()->getOptions());
+			send(sinf.getBytes());
 
 			// Followed by the user flags
-			PacketHeader userFlagsHeader { idUserStatus, sizeof(uint16), session->getId() };
-			uint16 userFlags = session->getStatus();
-			outStream.write(reinterpret_cast<const char*>(&userFlagsHeader), sizeof(PacketHeader));
-			outStream.write(reinterpret_cast<const char*>(&userFlags), sizeof(uint16));
-			ByteBuffer outFlags(outStream.str().begin(), outStream.str().end());
-			send(outFlags);
+			ByteBuffer uSta;
+			uSta.writeU32(idUserStatus);
+			uSta.writeU32(2);
+			uSta.writeI32(session->getId());
+			uSta.writeU16(session->getStatus());
+			send(uSta.getBytes());
 			break;
 		}
 		default:
@@ -101,7 +93,7 @@ void PalaceConnection::onReceive(ByteString &inString)
 	}
 }
 
-void PalaceConnection::onError(asio::error_code)
+void PalaceConnection::onError(Error)
 {
 }
 

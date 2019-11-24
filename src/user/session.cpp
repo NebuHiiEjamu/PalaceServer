@@ -3,9 +3,8 @@
 
 #include "session.hpp"
 #include "palaceconnection.hpp"
-#include "../net/packet.hpp"
 
-Session::Session(std::int32_t id, PalaceConnectionPtr connection):
+Session::Session(int32 id, PalaceConnectionPtr connection):
 	connection(connection),
 	id(id)
 {
@@ -68,12 +67,12 @@ std::string_view Session::getPlatformString() const
 	}
 }
 
-std::int32_t Session::getId() const
+int32 Session::getId() const
 {
 	return id;
 }
 
-std::uint16_t Session::getStatus()
+uint16 Session::getStatus()
 {
 	LockGuard(mutex);
 	return static_cast<uint16>(status.to_ulong());
