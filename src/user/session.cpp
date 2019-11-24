@@ -1,5 +1,4 @@
 #include <cstring>
-#include <iterator>
 
 #include "session.hpp"
 #include "palaceconnection.hpp"

@@ -2,6 +2,7 @@
 #define _COMMON_H
 
 #include <boost/asio.hpp>
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -18,6 +19,7 @@ using int32 = std::int32_t;
 using LockGuard = std::lock_guard<std::mutex>;
 using Socket = boost::asio::ip::tcp::socket;
 using Strand = boost::asio::io_context::strand;
+using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
 using uint16 = std::uint16_t;
 using uint32 = std::uint32_t;
 
