@@ -5,12 +5,13 @@
 #include <map>
 #include <mutex>
 #include <random>
-#include <sqlite3.h>
 
 #include "net/forward.hpp"
 #include "user/forward.hpp"
 #include "forward.hpp"
 #include "common.hpp"
+
+struct sqlite3;
 
 enum class ServerPlatform : Byte
 {

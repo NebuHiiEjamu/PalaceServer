@@ -56,7 +56,7 @@ void PalaceConnection::onReceive(ByteString &inString)
 
 			// Return the same packet as a logon reply and ref num set to the user ID
 			ByteBuffer rep2;
-			rep2.writeU32(idAltLogonReply);
+			rep2.writeU32(Id::rep2);
 			rep2.writeU32(size);
 			rep2.writeI32(session->getId());
 			rep2.write(regi.getBytes());
@@ -64,14 +64,14 @@ void PalaceConnection::onReceive(ByteString &inString)
 
 			// Also, send the server version
 			ByteBuffer vers;
-			vers.writeU32(idVersion);
+			vers.writeU32(Id::vers);
 			vers.writeU32(0);
 			vers.writeI32(Server::version);
 			send(vers.getBytes());
 
 			// And then the server info
 			ByteBuffer sinf;
-			sinf.writeU32(idServerInfo);
+			sinf.writeU32(Id::sinf);
 			sinf.writeU32(8 + Server::getInstance()->getName().size());
 			sinf.writeI32(session->getId());
 			sinf.writeU32(Server::getInstance()->getPermissions());
@@ -81,7 +81,7 @@ void PalaceConnection::onReceive(ByteString &inString)
 
 			// Followed by the user flags
 			ByteBuffer uSta;
-			uSta.writeU32(idUserStatus);
+			uSta.writeU32(Id::uSta);
 			uSta.writeU32(2);
 			uSta.writeI32(session->getId());
 			uSta.writeU16(session->getStatus());

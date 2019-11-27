@@ -14,6 +14,7 @@ enum class Client : Byte
 	unknown,
 	thePalace,
 	instantPalace,
+	phalanx,
 	openPalace,
 	palaceChat
 };

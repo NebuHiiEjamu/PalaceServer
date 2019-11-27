@@ -31,9 +31,11 @@ void Session::processRegistration(ByteBuffer &buffer)
 	}
 
 	if (std::strncmp(reserved.data(), "PC4237", 6) == 0)
-		client = Client::openPalace;
-	else if (std::strncmp(reserved.data(), "OPNPAL", 6) == 0)
 		client = Client::palaceChat;
+	else if (std::strncmp(reserved.data(), "OPNPAL", 6) == 0)
+		client = Client::openPalace;
+	else if (std::strncmp(reserved.data(), "PX4016", 6) == 0)
+		client = Client::phalanx;
 	else if (std::strncmp(reserved.data(), "350211", 6) == 0)
 		client = Client::thePalace;
 	else if (std::strncmp(reserved.data(), "J2.0\0\0", 6) == 0)
@@ -47,9 +49,10 @@ std::string_view Session::getClientString() const
 	{
 		case Client::palaceChat: return "PalaceChat"; break;
 		case Client::openPalace: return "OpenPalace"; break;
+		case Client::phalanx: return "Phalanx"; break;
 		case Client::thePalace: return "ThePalace"; break;
 		case Client::instantPalace: return "InstantPalace"; break;
-		default: return "unknown";
+		default: return "unknown client";
 	}
 }
 

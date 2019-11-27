@@ -1,5 +1,6 @@
 #include <array>
 #include <boost/predef.h>
+#include <sqlite3.h>
 
 #include "server.hpp"
 #include "net/packet.hpp"
