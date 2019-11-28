@@ -3,7 +3,7 @@
 
 #include "common.hpp"
 
-enum class Id : uint32
+enum class Magic : uint32
 {
 	AURL = 0x4155524C,
 	AUTH = 0x41555448,
