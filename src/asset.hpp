@@ -39,10 +39,10 @@ private:
 	//ByteBuffer encodeS20Bit() const;
 protected:
 	std::string name;
-	std::bitset<AssetStatus::all> status;
-	int32 id;
-	uint32 crc;
 	ByteString data;
+	std::bitset<AssetStatus::all> status;
+	sint32 id;
+	uint32 crc;
 	int32 refCon;
 };
 

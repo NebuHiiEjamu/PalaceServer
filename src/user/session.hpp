@@ -84,8 +84,8 @@ private:
 	std::array<AssetRef, 9> props;
 	std::mutex mutex;
 	std::bitset<UserStatus::all> status;
-	int32 id;
-	int16 room;
+	sint32 id;
+	sint16 room;
 	int16 x;
 	int16 y;
 	Client client;

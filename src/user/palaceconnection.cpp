@@ -23,7 +23,7 @@ void PalaceConnection::onAccept(std::string_view, uint16)
 	ByteBuffer tiyr;
 
 	// Have the server send the user their ID upon connection
-	int32 id = Server::getInstance()->getNextUserId();
+	sint32 id = Server::getInstance()->getNextUserId();
 	tiyr.writeU32(Magic::tiyr);
 	tiyr.writeU32(0);
 	tiyr.writeI32(id);
@@ -44,7 +44,7 @@ void PalaceConnection::onReceive(ByteString &inString)
 	uint32 size = buffer.readU32();
 	int32 refNum = buffer.readI32();
 
-	uint32 userId = session->getId();
+	sint32 userId = session->getId();
 	ServerRef inst = Server::getInstance();
 
 	switch (event)

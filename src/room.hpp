@@ -42,7 +42,7 @@ namespace ScriptEvents
 class State
 {
 private:
-	int32 image;
+	sint32 image;
 	int16 imageX;
 	int16 imageY;
 };
@@ -100,7 +100,7 @@ private:
 	std::mutex mutex;
 	std::set<int32> users;
 	int32 faces;
-	int16 id;
+	sint16 id;
 };
 
 #endif // _ROOM_H

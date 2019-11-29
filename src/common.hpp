@@ -2,6 +2,7 @@
 #define _COMMON_H
 
 #include <boost/asio.hpp>
+#include <boost/safe_numerics/safe_integer.hpp>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -17,6 +18,8 @@ using Error = boost::asio::error_code;
 using int16 = std::int16_t;
 using int32 = std::int32_t;
 using LockGuard = std::lock_guard<std::mutex>;
+using sint16 = boost::numeric::safe<int16>;
+using sint32 = boost::numeric::safe<int32>;
 using Socket = boost::asio::ip::tcp::socket;
 using Strand = boost::asio::io_context::strand;
 using Timestamp = std::chrono::time_point<std::chrono::system_clock>;
