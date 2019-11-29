@@ -70,10 +70,10 @@ namespace UserStatus
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-	Session(int32, PalaceConnectionPtr);
+	Session(sint32, PalaceConnectionPtr);
 	std::string_view getClientString() const;
 	std::string_view getPlatformString() const;
-	int32 getId() const;
+	sint32 getId() const;
 	uint16 getStatus();
 	void setStatus(uint16);
 	void processRegistration(ByteBuffer&);

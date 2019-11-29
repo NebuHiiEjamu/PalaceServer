@@ -3,7 +3,7 @@
 #include "session.hpp"
 #include "palaceconnection.hpp"
 
-Session::Session(int32 id, PalaceConnectionPtr connection):
+Session::Session(sint32 id, PalaceConnectionPtr connection):
 	connection(connection),
 	id(id)
 {
@@ -69,7 +69,7 @@ std::string_view Session::getPlatformString() const
 	}
 }
 
-int32 Session::getId() const
+sint32 Session::getId() const
 {
 	return id;
 }
