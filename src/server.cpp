@@ -138,12 +138,20 @@ constexpr std::string_view Server::getDefaultDatabase()
 			`loose_props` TEXT\
 		);\
 		\
+		DROP TABLE IF EXISTS `sessions`;\
+		CREATE TABLE `sessions` (\
+			`id` INTEGER PRIMARY KEY,\
+			`address` TEXT NOT NULL,\
+			`room` INTEGER NOT NULL,\
+			`flags` INTEGER NOT NULL\
+		);\
+		\
 		DROP TABLE IF EXISTS `spots`;\
 		CREATE TABLE `spots` (\
 			`id` INTEGER PRIMARY KEY AUTOINCREMENT,\
 			`name` TEXT,\
 			`room` INTEGER NOT NULL,\
-			`room_id` INTEGER NOT NULL,\
+			`local_room_id` INTEGER NOT NULL,\
 			`destination` INTEGER NOT NULL,\
 			`state` INTEGER NOT NULL,\
 			`type` INTEGER NOT NULL,\
@@ -166,7 +174,7 @@ Server::Server():
 {
 }
 
-bool Server::createSession(sint32 id, PalaceConnectionPtr connection)
+bool Server::createSession(int32 id, PalaceConnectionPtr connection)
 {
 	LockGuard lock(mutex);
 	SessionPtr newSession = std::make_shared<Session>(id, connection);
@@ -176,7 +184,7 @@ bool Server::createSession(sint32 id, PalaceConnectionPtr connection)
 	return true;
 }
 
-void Server::removeSession(sint32 id)
+void Server::removeSession(int32 id)
 {
 	sessionMap.erase(id);
 }

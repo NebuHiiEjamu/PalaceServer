@@ -27,6 +27,11 @@ ByteString& ByteBuffer::getBytes() const
 	return data;
 }
 
+std::size ByteBuffer::getSize() const
+{
+	return data.size();
+}
+
 void ByteBuffer::setBytes(ByteString &inString)
 {
 	data = std::move(inString);
@@ -93,7 +98,17 @@ template <class StringType> StringType&& ByteBuffer::readS63(bool padded)
 	return std::move(s);
 }
 
-std::string&& ByteBuffer::readString()
+template <class StringType> StringType&& ByteBuffer::readPString()
+{
+	Byte b = *position;
+	position++;
+
+	StringType s(position, position + b);
+	position += b
+	return std::move(s);
+}
+
+std::string&& ByteBuffer::readCString()
 {
 	std::string s;
 
@@ -133,16 +148,16 @@ void ByteBuffer::writeByte(Byte b)
 
 void ByteBuffer::writeI16(int16 i)
 {
-	data.push_back(static_cast<Byte>(i & 0xFF);
-	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8);
+	data.push_back(static_cast<Byte>(i & 0xFF));
+	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8));
 }
 
 void ByteBuffer::writeI32(int32 i)
 {
-	data.push_back(static_cast<Byte>(i & 0xFF);
-	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8);
-	data.push_back(static_cast<Byte>((i & 0xFF0000) >> 16);
-	data.push_back(static_cast<Byte>((i & 0xFF000000) >> 24);
+	data.push_back(static_cast<Byte>(i & 0xFF));
+	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8));
+	data.push_back(static_cast<Byte>((i & 0xFF0000) >> 16));
+	data.push_back(static_cast<Byte>((i & 0xFF000000) >> 24));
 }
 
 void ByteBuffer::writeNull(std::size_t bytes)
@@ -152,34 +167,46 @@ void ByteBuffer::writeNull(std::size_t bytes)
 
 template <class StringType> void ByteBuffer::writeS31(const StringType &s, bool padded = false)
 {
-	data.push_back(static_cast<Byte>(s.size());
-	data.insert(std::back_inserter(data), s.begin(), s.end());
+	writePString(s);
 	if (padded) writeNull(31 - s.size());
 }
 
 template <class StringType> void ByteBuffer::writeS63(const StringType &s, bool padded = false)
 {
-	data.push_back(static_cast<Byte>(s.size());
-	data.insert(std::back_inserter(data), s.begin(), s.end());
+	writePString(s);
 	if (padded) writeNull(63 - s.size());
 }
 
-void ByteBuffer::writeString(std::string_view s)
+template <class StringType> void ByteBuffer::writePString(const StringType &s)
+{
+	data.push_back(static_cast<Byte>(s.size());
+	data.insert(std::back_inserter(data), s.begin(), s.end());
+}
+
+void ByteBuffer::writeCString(std::string_view s)
 {
 	data.insert(std::back_inserter(data), s.begin(), s.end());
 	data.push_back(0);
 }
 
-void ByteBuffer::writeU16(uint16 i)
+void ByteBuffer::writeU16(uint16 i, uint16 overwritePos = 0)
 {
-	data.push_back(static_cast<Byte>(i & 0xFF);
-	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8);
+	if (overwritePos > 0)
+	{
+		data[overwritePos] = static_cast<Byte>(i & 0xFF);
+		data[overwritePos + 1] = static_cast<Byte>((i & 0xFF00) >> 8);
+	}
+	else
+	{
+		data.push_back(static_cast<Byte>(i & 0xFF));
+		data.push_back(static_cast<Byte>((i & 0xFF00) >> 8));
+	}
 }
 
 void ByteBuffer::writeU32(uint32 i)
 {
-	data.push_back(static_cast<Byte>(i & 0xFF);
-	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8);
-	data.push_back(static_cast<Byte>((i & 0xFF0000) >> 16);
-	data.push_back(static_cast<Byte>((i & 0xFF000000) >> 24);
+	data.push_back(static_cast<Byte>(i & 0xFF));
+	data.push_back(static_cast<Byte>((i & 0xFF00) >> 8));
+	data.push_back(static_cast<Byte>((i & 0xFF0000) >> 16));
+	data.push_back(static_cast<Byte>((i & 0xFF000000) >> 24));
 }

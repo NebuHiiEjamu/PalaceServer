@@ -34,20 +34,21 @@ public:
 	Asset();
 	void specToBuffer(ByteBuffer&) const;
 	void descriptorToBuffer(ByteBuffer&) const;
-private:
 	void computeCrc(const ByteString&);
 	//ByteBuffer encodeS20Bit() const;
 protected:
 	std::string name;
 	ByteString data;
 	std::bitset<AssetStatus::all> status;
-	sint32 id;
+	int32 id;
 	uint32 crc;
 	int32 refCon;
 };
 
 class Image : public std::enable_shared_from_this<Image>
 {
+public:
+	void toBuffer(ByteBuffer&) const;
 private:
 	std::string name;
 	uint16 alpha;

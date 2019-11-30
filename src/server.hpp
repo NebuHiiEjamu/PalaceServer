@@ -124,9 +124,9 @@ public:
 	static void decode(ByteString&);
 
 	~Server();
-	bool createSession(sint32, PalaceConnectionPtr);
-	void removeSession(sint32);
-	sint32 getNextUserId();
+	bool createSession(int32, PalaceConnectionPtr);
+	void removeSession(int32);
+	int32 getNextUserId();
 	uint32 getPermissions() const;
 	uint32 getOptions() const;
 	std::string_view getName() const;
@@ -144,13 +144,16 @@ private:
 	std::bitset<ExtendedInfo::all> extendedInfo;
 	std::bitset<Permissions::all> permissions;
 	std::bitset<Options::all> options;
-	std::map<sint32, SessionPtr> sessionMap;
-	std::map<sint32, AssetPtr> assetMap;
-	std::map<sint32, ImagePtr> imageMap;
-	std::map<sint16, RoomPtr> roomMap;
+	std::map<int32, SessionPtr> sessionMap;
+	std::map<int32, AssetPtr> assetMap;
+	std::map<int16, ImagePtr> imageMap;
+	std::map<int16, RoomPtr> roomMap;
 	sqlite3 *db;
 	std::mutex mutex;
 	sint32 nextUserId;
+	sint32 nextAssetId;
+	sint32 nextImageId;
+	sint16 nextRoomId;
 };
 
 #endif // _SERVER_H

@@ -34,6 +34,7 @@ public:
 	ByteBuffer&& clone(std::size_t) const;
 	ByteString& getBytes() const;
 	void setBytes(ByteString&);
+	std::size getSize() const;
 	void flush();
 	template <class StringType> StringType&& read(std::size_t);
 	Byte readByte();
@@ -42,7 +43,8 @@ public:
 	void readNull(std::size_t);
 	template <class StringType> StringType&& readS31(bool);
 	template <class StringType> StringType&& readS63(bool);
-	std::string&& readString();
+	template <class StringType> StringType&& readPString();
+	std::string&& readCString();
 	uint16 readU16();
 	uint32 readU32();
 	template <class StringType> void write(const StringType&);
@@ -52,8 +54,9 @@ public:
 	void writeNull(std::size_t);
 	template <class StringType> void writeS31(const StringType&, bool);
 	template <class StringType> void writeS63(const StringType&, bool);
-	void writeString(std::string_view);
-	void writeU16(uint16);
+	template <class StringType> void writePString(const StringType&);
+	void writeCString(std::string_view);
+	void writeU16(uint16, uint16);
 	void writeU32(uint32);
 private:
 	ByteString data;

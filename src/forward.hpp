@@ -4,6 +4,7 @@
 #include <memory>
 
 class Asset;
+class Draw;
 class Image;
 class LooseProp;
 class Room;
@@ -13,6 +14,8 @@ class State;
 
 using AssetPtr = std::shared_ptr<Asset>;
 using AssetRef = std::weak_ptr<Asset>;
+using DrawPtr = std::shared_ptr<Draw>;
+using DrawRef = std::weak_ptr<Draw>;
 using ImagePtr = std::shared_ptr<Image>;
 using ImageRef = std::weak_ptr<Image>;
 using LoosePropPtr = std::shared_ptr<LooseProp>;
