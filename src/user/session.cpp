@@ -12,11 +12,11 @@ Session::Session(sint32 id, PalaceConnectionPtr connection):
 void Session::processRegistration(ByteBuffer &buffer)
 {
 	buffer.readNull(8); // serial number
-	userName = buffer.readS31(true);
-	password = buffer.readS31(true);
-	uint32 flags = buffer.readU32();
+	userName = buffer.readStr31(true);
+	password = buffer.readStr31(true);
+	uint32 flags = buffer.read();
 	buffer.readNull(20); // pseudo serial number (8) + demo data (12)
-	uint32 desiredRoom = buffer.readI16();
+	int16 desiredRoom = buffer.read();
 	std::array<char, 6> reserved = buffer.read(6); // usually client identifier
 	buffer.readNull(24); // req. protocol ver (4) + capabilities (20)
 	

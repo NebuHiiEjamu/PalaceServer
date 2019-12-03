@@ -37,27 +37,20 @@ public:
 	std::size getSize() const;
 	void flush();
 	template <class StringType> StringType&& read(std::size_t);
-	Byte readByte();
-	int16 readI16();
-	int32 readI32();
+	template <class T> T read();
 	void readNull(std::size_t);
-	template <class StringType> StringType&& readS31(bool);
-	template <class StringType> StringType&& readS63(bool);
+	template <class StringType> StringType&& readStr31(bool);
+	template <class StringType> StringType&& readStr63(bool);
 	template <class StringType> StringType&& readPString();
 	std::string&& readCString();
-	uint16 readU16();
-	uint32 readU32();
 	template <class StringType> void write(const StringType&);
-	void writeByte(Byte);
-	void writeI16(int16);
-	void writeI32(int32);
+	template <class T> void write(T, int);
+	void write32(uint32); // for ambiguity
 	void writeNull(std::size_t);
-	template <class StringType> void writeS31(const StringType&, bool);
-	template <class StringType> void writeS63(const StringType&, bool);
+	template <class StringType> void writeStr31(const StringType&, bool);
+	template <class StringType> void writeStr63(const StringType&, bool);
 	template <class StringType> void writePString(const StringType&);
 	void writeCString(std::string_view);
-	void writeU16(uint16, uint16);
-	void writeU32(uint32);
 private:
 	ByteString data;
 	ByteString::iterator position;

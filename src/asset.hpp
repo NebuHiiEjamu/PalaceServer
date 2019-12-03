@@ -7,7 +7,7 @@
 
 #include "common.hpp"
 
-namespace AssetStatus
+namespace AssetAttributes
 {
 	enum
 	{
@@ -39,7 +39,7 @@ public:
 protected:
 	std::string name;
 	ByteString data;
-	std::bitset<AssetStatus::all> status;
+	std::bitset<AssetAttributes::all> attributes;
 	int32 id;
 	uint32 crc;
 	int32 refCon;

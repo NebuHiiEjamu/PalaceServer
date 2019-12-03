@@ -129,6 +129,7 @@ public:
 	int32 getNextUserId();
 	uint32 getPermissions() const;
 	uint32 getOptions() const;
+	uint32 getUserCount();
 	std::string_view getName() const;
 	std::string_view getContentUrl() const;
 private:

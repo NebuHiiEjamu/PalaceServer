@@ -51,10 +51,19 @@ private:
 	int16 imageY;
 };
 
+enum class SpotType : uint16
+{
+	normal = 0,
+	door,
+	shutableDoor,
+	lockableDoor,
+	bolt,
+	navArea
+};
+
 class Spot : public std::enable_shared_from_this<Spot>
 {
 public:
-	void toBuffer(ByteBuffer&) const;
 private:
 	std::string name;
 	std::string script;
@@ -62,6 +71,7 @@ private:
 	std::vector<std::pair<int16, int16>> points;
 	std::vector<State> states;
 	uint32 attributes;
+	SpotType type;
 	int16 id;
 	int16 destination;
 	int16 x;

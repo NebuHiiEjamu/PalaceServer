@@ -195,6 +195,12 @@ sint32 Server::getNextUserId()
 	return nextUserId++;
 }
 
+uint32 Server::getUserCount()
+{
+	LockGuard lock(mutex);
+	return sessionMap.size();
+}
+
 uint32 Server::getPermissions() const
 {
 	return permissions.to_ulong();

@@ -4,15 +4,6 @@ void State::toBuffer(ByteBuffer &buffer) const
 {
 }
 
-void Spot::toBuffer(ByteBuffer &buffer) const
-{
-	buffer.writeU32(scriptEvents.to_ulong());
-	buffer.writeU32(attributes);
-	buffer.writeNull(8); // unused
-	buffer.writeI16(y);
-	buffer.writeI16(x);
-}
-
 void Draw::toBuffer(ByteBuffer &buffer) const
 {
 }
@@ -20,12 +11,12 @@ void Draw::toBuffer(ByteBuffer &buffer) const
 void LooseProp::toBuffer(ByteBuffer &buffer) const
 {
 	buffer.writeNull(8); // unused LLRec
-	buffer.writeI32(id);
-	buffer.writeU32(crc);
-	buffer.writeU32(status.to_ulong());
-	buffer.writeI32(refCon);
-	buffer.writeI16(y);
-	buffer.writeI16(x);
+	buffer.write(id);
+	buffer.write(crc);
+	buffer.write32(attributes.to_ulong());
+	buffer.write(refCon);
+	buffer.write(y);
+	buffer.write(x);
 }
 
 void Room::fullInfoToBuffer(ByteBuffer &buffer) const
@@ -37,18 +28,18 @@ void Room::fullInfoToBuffer(ByteBuffer &buffer) const
 	uint16 backgroundOffset, artistOffset, passwordOffset, spotOffset, imageOffset,
 		firstDrawOffset, firstPropOffset, varStart;
 
-	proto.writeU32(attributes.to_ulong());
-	proto.writeI32(faces);
-	proto.writeI16(id);
+	proto.write32(attributes.to_ulong());
+	proto.write(faces);
+	proto.write(id);
 	proto.writeNull(8); // offsets to be filled in
-	proto.writeU16(spotMap.size());
+	proto.write32(spotMap.size());
 	proto.writeNull(2); // offset
-	proto.writeU16(images.size());
+	proto.write32(images.size());
 	proto.writeNull(2); // offset
-	proto.writeU16(draws.size());
+	proto.write32(draws.size());
 	proto.writeNull(2); // offset
-	proto.writeU16(users.size());
-	proto.writeU16(looseProps.size());
+	proto.write32(users.size());
+	proto.write32(looseProps.size());
 	proto.writeNull(6); // offset (2) + reserved (2) + var length (2)
 
 	proto.writePString(name);

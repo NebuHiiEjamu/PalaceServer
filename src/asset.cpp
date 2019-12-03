@@ -24,13 +24,13 @@ void Asset::computeCrc(const ByteString &bytes)
 
 void Asset::specToBuffer(ByteBuffer &buffer) const
 {
-	buffer.writeI32(id);
-	buffer.writeU32(crc);
+	buffer.write(id);
+	buffer.write(crc);
 }
 
 void Asset::descriptorToBuffer(ByteBuffer &buffer) const
 {
-	buffer.writeU32(status.to_ulong());
-	buffer.writeU32(data.size());
-	buffer.writeS31(name);
+	buffer.write32(attributes.to_ulong());
+	buffer.write32(data.size());
+	buffer.writeStr31(name);
 }
