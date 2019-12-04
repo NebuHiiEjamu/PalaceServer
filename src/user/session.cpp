@@ -12,8 +12,8 @@ Session::Session(sint32 id, PalaceConnectionPtr connection):
 void Session::processRegistration(ByteBuffer &buffer)
 {
 	buffer.readNull(8); // serial number
-	userName = buffer.readStr31(true);
-	password = buffer.readStr31(true);
+	userName = buffer.read<31>(true);
+	password = buffer.read<31>(true);
 	uint32 flags = buffer.read();
 	buffer.readNull(20); // pseudo serial number (8) + demo data (12)
 	int16 desiredRoom = buffer.read();

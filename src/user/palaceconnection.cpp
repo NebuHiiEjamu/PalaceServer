@@ -78,7 +78,7 @@ void PalaceConnection::onReceive(ByteString &inString)
 			sinf_uSta.write32(8 + inst->getName().size());
 			sinf_uSta.write(userId);
 			sinf_uSta.write(inst->getPermissions());
-			sinf_uSta.writeS63(inst->getName());
+			sinf_uSta.write<63>(inst->getName());
 			sinf_uSta.write(inst->getOptions());
 			sinf_uSta.write(Magic::uSta);
 			sinf_uSta.write32(2);

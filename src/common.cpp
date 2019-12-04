@@ -62,23 +62,13 @@ void ByteBuffer::readNull(std::size_t bytes)
 	position += bytes;
 }
 
-template <class StringType> StringType&& ByteBuffer::readStr31(bool padded)
+template <class StringType, std::size_t N> StringType&& ByteBuffer::read(bool padded)
 {
 	Byte b = *position;
 	position++;
 
-	StringType s(position, padded ? position + 31 : position + b);
-	position += padded ? 31 : b;
-	return std::move(s);
-}
-
-template <class StringType> StringType&& ByteBuffer::readStr63(bool padded)
-{
-	Byte b = *position;
-	position++;
-
-	StringType s(position, padded ? position + 63 : position + b);
-	position += padded ? 63 : b;
+	StringType s(position, padded ? position + N : position + b);
+	position += padded ? N : b;
 	return std::move(s);
 }
 
@@ -140,16 +130,10 @@ void ByteBuffer::writeNull(std::size_t bytes)
 	for (std::size_t i = 0; i < bytes; i++) data.push_back(0);
 }
 
-template <class StringType> void ByteBuffer::writeStr31(const StringType &s, bool padded = false)
+template <std::size_t N> void ByteBuffer::write(const StringType &s, bool padded = false)
 {
 	writePString(s);
-	if (padded) writeNull(31 - s.size());
-}
-
-template <class StringType> void ByteBuffer::writeStr63(const StringType &s, bool padded = false)
-{
-	writePString(s);
-	if (padded) writeNull(63 - s.size());
+	if (padded) writeNull(N - s.size());
 }
 
 template <class StringType> void ByteBuffer::writePString(const StringType &s)

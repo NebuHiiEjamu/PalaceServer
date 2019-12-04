@@ -38,17 +38,15 @@ public:
 	void flush();
 	template <class StringType> StringType&& read(std::size_t);
 	template <class T> T read();
+	template <class StringType, std::size_t N> StringType&& read(bool);
 	void readNull(std::size_t);
-	template <class StringType> StringType&& readStr31(bool);
-	template <class StringType> StringType&& readStr63(bool);
 	template <class StringType> StringType&& readPString();
 	std::string&& readCString();
 	template <class StringType> void write(const StringType&);
 	template <class T> void write(T, int);
+	template <std::size_t N> void write(const StringType&, bool);
 	void write32(uint32); // for ambiguity
 	void writeNull(std::size_t);
-	template <class StringType> void writeStr31(const StringType&, bool);
-	template <class StringType> void writeStr63(const StringType&, bool);
 	template <class StringType> void writePString(const StringType&);
 	void writeCString(std::string_view);
 private:

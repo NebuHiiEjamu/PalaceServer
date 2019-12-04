@@ -32,5 +32,5 @@ void Asset::descriptorToBuffer(ByteBuffer &buffer) const
 {
 	buffer.write32(attributes.to_ulong());
 	buffer.write32(data.size());
-	buffer.writeStr31(name);
+	buffer.write<31>(name);
 }
