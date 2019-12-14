@@ -1,15 +1,15 @@
-#ifndef _SERVER_H
-#define _SERVER_H
+#ifndef _PALACE_SERVER_H
+#define _PALACE_SERVER_H
 
 #include <bitset>
 #include <map>
 #include <mutex>
 #include <random>
 
-#include "net/forward.hpp"
 #include "user/forward.hpp"
 #include "forward.hpp"
-#include "common.hpp"
+#include "common/src/server.hpp"
+#include "common/src/typedefs.hpp"
 
 struct sqlite3;
 
@@ -111,7 +111,7 @@ namespace ExtendedInfo
 	};
 }
 
-class Server final : public std::enable_shared_from_this<Server>
+class PalaceServer final : public Server
 {
 public:
 	static constexpr int32 version = 0x1000016;
@@ -119,23 +119,24 @@ public:
 	static constexpr ServerPlatform getPlatform();
 	static constexpr std::string_view getPlatformString();
 	static constexpr std::string_view getDefaultDatabase();
-	static ServerRef getInstance();
+	static PalaceServerRef getInstance();
 	static void encode(ByteString&);
 	static void decode(ByteString&);
 
-	~Server();
+	~PalaceServer();
 	bool createSession(int32, PalaceConnectionPtr);
 	void removeSession(int32);
 	int32 getNextUserId();
 	uint32 getPermissions() const;
 	uint32 getOptions() const;
 	uint32 getUserCount();
-	std::string_view getName() const;
-	std::string_view getContentUrl() const;
+	std::string_view& getName() const;
+	std::string_view& getContentUrl() const;
+	void run(int, char**) override;
 private:
-	Server();
+	PalaceServer();
 private:
-	static std::shared_ptr<Server> instance;
+	static std::shared_ptr<PalaceServer> instance;
 
 	std::string name;
 	std::string contentUrl;
@@ -157,4 +158,4 @@ private:
 	sint16 nextRoomId;
 };
 
-#endif // _SERVER_H
+#endif // _PALACE_SERVER_H

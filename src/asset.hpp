@@ -2,10 +2,8 @@
 #define _ASSET_H
 
 #include <bitset>
-#include <cstdint>
-#include <string>
 
-#include "common.hpp"
+#include "stream.hpp"
 
 namespace AssetAttributes
 {
@@ -32,10 +30,9 @@ public:
 	static constexpr uint32 nullCrc = 0xD9216290;
 
 	Asset();
-	void specToBuffer(ByteBuffer&) const;
-	void descriptorToBuffer(ByteBuffer&) const;
+	void specToStream(PalaceOutStream&) const;
+	void descriptorToStream(PalaceOutStream&) const;
 	void computeCrc(const ByteString&);
-	//ByteBuffer encodeS20Bit() const;
 protected:
 	std::string name;
 	ByteString data;
@@ -48,7 +45,7 @@ protected:
 class Image : public std::enable_shared_from_this<Image>
 {
 public:
-	void toBuffer(ByteBuffer&) const;
+	void toStream(PalaceOutStream&) const;
 private:
 	std::string name;
 	uint16 alpha;

@@ -2,8 +2,8 @@
 #include <boost/predef.h>
 #include <sqlite3.h>
 
-#include "server.hpp"
-#include "net/packet.hpp"
+#include "id.hpp"
+#include "palaceserver.hpp"
 #include "user/palaceconnection.hpp"
 #include "user/session.hpp"
 
@@ -28,9 +28,9 @@ static const LookupTable generateLookUpTable()
 }
 
 static const LookupTable lookUpTable = generateLookUpTable();
-std::shared_ptr<Server> Server::instance = std::make_shared<Server>();
+std::shared_ptr<PalaceServer> PalaceServer::instance = std::make_shared<PalaceServer>();
 
-void Server::encode(ByteString &inString)
+void PalaceServer::encode(ByteString &inString)
 {
 	Byte lastChar = 0;
 	uint32 rc = 0;
@@ -46,7 +46,7 @@ void Server::encode(ByteString &inString)
 	}
 }
 
-void Server::decode(ByteString &inString)
+void PalaceServer::decode(ByteString &inString)
 {
 	Byte lastChar = 0;
 	uint32 rc = 0;
@@ -60,18 +60,18 @@ void Server::decode(ByteString &inString)
 	}
 }
 
-constexpr ServerPlatform Server::getPlatform()
+constexpr ServerPlatform PalaceServer::getPlatform()
 {
 #if BOOST_OS_MACOS
 	return ServerPlatform::macintosh;
 #elif BOOST_OS_WINDOWS
-	return ServerPlatform::windowsNT; // Windows 9X is not supported
+	return ServerPlatform::windowsNT; // Windows 9X has no compatible compilers
 #else
 	return ServerPlatform::unix;
 #endif
 }
 
-constexpr std::string_view Server::getPlatformString()
+constexpr std::string_view PalaceServer::getPlatformString()
 {
 #if BOOST_OS_MACOS // first, because Mac OS X may collide with Unix
 	return "Macintosh";
@@ -84,7 +84,7 @@ constexpr std::string_view Server::getPlatformString()
 #endif
 }
 
-constexpr std::string_view Server::getDefaultDatabase()
+constexpr std::string_view PalaceServer::getDefaultDatabase()
 {
 	return "DROP TABLE IF EXISTS `assets`;\
 		CREATE TABLE `assets` (\
@@ -168,13 +168,13 @@ constexpr std::string_view Server::getDefaultDatabase()
 			VALUES (86, 'Gate', 'clouds.png', 256);";
 }
 
-Server::Server():
+PalaceServer::PalaceServer():
 	randomEngine(std::mt19937(randomDevice())),
 	nextUserId(1)
 {
 }
 
-bool Server::createSession(int32 id, PalaceConnectionPtr connection)
+bool PalaceServer::createSession(int32 id, PalaceConnectionPtr connection)
 {
 	LockGuard lock(mutex);
 	SessionPtr newSession = std::make_shared<Session>(id, connection);
@@ -184,44 +184,44 @@ bool Server::createSession(int32 id, PalaceConnectionPtr connection)
 	return true;
 }
 
-void Server::removeSession(int32 id)
+void PalaceServer::removeSession(int32 id)
 {
 	sessionMap.erase(id);
 }
 
-sint32 Server::getNextUserId()
+sint32 PalaceServer::getNextUserId()
 {
 	LockGuard lock(mutex);
 	return nextUserId++;
 }
 
-uint32 Server::getUserCount()
+uint32 PalaceServer::getUserCount()
 {
 	LockGuard lock(mutex);
 	return sessionMap.size();
 }
 
-uint32 Server::getPermissions() const
+uint32 PalaceServer::getPermissions() const
 {
 	return permissions.to_ulong();
 }
 
-uint32 Server::getOptions() const
+uint32 PalaceServer::getOptions() const
 {
 	return options.to_ulong();
 }
 
-std::string_view Server::getName() const
+std::string_view& PalaceServer::getName() const
 {
 	return name;
 }
 
-std::string_view Server::getContentbUrl() const
+std::string_view& PalaceServer::getContentbUrl() const
 {
 	return contentUrl;
 }
 
-ServerRef Server::getInstance()
+PalaceServerRef PalaceServer::getInstance()
 {
 	return instance;
 }

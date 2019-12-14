@@ -1,57 +1,57 @@
 #include "room.hpp"
 
-void State::toBuffer(ByteBuffer &buffer) const
+void State::toStream(PalaceOutStream &stream) const
 {
 }
 
-void Draw::toBuffer(ByteBuffer &buffer) const
+void Draw::toStream(PalaceOutStream &stream) const
 {
 }
 
-void LooseProp::toBuffer(ByteBuffer &buffer) const
+void LooseProp::toStream(PalaceOutStream &stream) const
 {
-	buffer.writeNull(8); // unused LLRec
-	buffer.write(id);
-	buffer.write(crc);
-	buffer.write32(attributes.to_ulong());
-	buffer.write(refCon);
-	buffer.write(y);
-	buffer.write(x);
+	stream.pad(8); // unused LLRec
+	stream.write(id);
+	stream.write(crc);
+	stream.write32(attributes.to_ulong());
+	stream.write(refCon);
+	stream.write(y);
+	stream.write(x);
 }
 
-void Room::fullInfoToBuffer(ByteBuffer &buffer) const
+void Room::fullInfoToStream(PalaceOutStream &stream) const
 {
 	static constexpr uint16 varStart = 40;
 
 	LockGuard lock(mutex);
-	ByteBuffer proto;
+	PalaceOutStream proto;
 	uint16 backgroundOffset, artistOffset, passwordOffset, spotOffset, imageOffset,
 		firstDrawOffset, firstPropOffset, varStart;
 
 	proto.write32(attributes.to_ulong());
 	proto.write(faces);
 	proto.write(id);
-	proto.writeNull(8); // offsets to be filled in
+	proto.pad(8); // offsets to be filled in
 	proto.write32(spotMap.size());
-	proto.writeNull(2); // offset
+	proto.pad(2); // offset
 	proto.write32(images.size());
-	proto.writeNull(2); // offset
+	proto.pad(2); // offset
 	proto.write32(draws.size());
-	proto.writeNull(2); // offset
+	proto.pad(2); // offset
 	proto.write32(users.size());
 	proto.write32(looseProps.size());
-	proto.writeNull(6); // offset (2) + reserved (2) + var length (2)
+	proto.pad(6); // offset (2) + reserved (2) + var length (2)
 
 	proto.writePString(name);
-	backgroundOffset = proto.getSize() - varStart;
+	backgroundOffset = proto.getPosition() - varStart;
 	proto.writePString(background);
-	artistOffset = proto.getSize() - varStart;
+	artistOffset = proto.getPosition() - varStart;
 	proto.writePString(artist);
-	passwordOffset = proto.getSize() - varStart;
+	passwordOffset = proto.getPosition() - varStart;
 	proto.writePString(password);
-	spotOffset = proto.getSize() - varStart;
+	spotOffset = proto.getPosition() - varStart;
 }
 
-void Room::listInfoToBuffer(ByteBuffer &buffer) const
+void Room::listInfoToStream(PalaceOutStream &stream) const
 {
 }

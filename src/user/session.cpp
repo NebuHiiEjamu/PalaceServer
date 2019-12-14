@@ -1,24 +1,27 @@
 #include <cstring>
 
+#include "../common/src/stream.hpp"
 #include "session.hpp"
 #include "palaceconnection.hpp"
 
-Session::Session(sint32 id, PalaceConnectionPtr connection):
+Session::Session(int32 id, PalaceConnectionPtr connection):
 	connection(connection),
 	id(id)
 {
 }
 
-void Session::processRegistration(ByteBuffer &buffer)
+void Session::handleRegistration(Buffer &buffer)
 {
-	buffer.readNull(8); // serial number
-	userName = buffer.read<31>(true);
-	password = buffer.read<31>(true);
-	uint32 flags = buffer.read();
-	buffer.readNull(20); // pseudo serial number (8) + demo data (12)
-	int16 desiredRoom = buffer.read();
-	std::array<char, 6> reserved = buffer.read(6); // usually client identifier
-	buffer.readNull(24); // req. protocol ver (4) + capabilities (20)
+	PalaceInStream stream(buffer);
+
+	stream.skip(8); // serial number
+	userName = stream.read<31>(true);
+	password = stream.read<31>(true);
+	uint32 flags = stream.read();
+	stream.skip(20); // pseudo serial number (8) + demo data (12)
+	int16 desiredRoom = stream.read();
+	std::array<char, 6> reserved = stream.read(6); // usually client identifier
+	stream.skip(24); // req. protocol ver (4) + capabilities (20)
 	
 	switch (flags & 0xF)
 	{
@@ -69,7 +72,7 @@ std::string_view Session::getPlatformString() const
 	}
 }
 
-sint32 Session::getId() const
+int32 Session::getId() const
 {
 	return id;
 }

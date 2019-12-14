@@ -1,8 +1,8 @@
 #include "asset.hpp"
-#include "server.hpp"
+#include "palaceserver.hpp"
 
 static constexpr float propBit16 = 31 / 255;
-static constexpr std::size_t pixelsS20 = 44 * 44;
+static constexpr Size pixelsS20 = 44 * 44;
 
 Asset::Asset():
 	crc(nullCrc),
@@ -18,19 +18,15 @@ void Asset::computeCrc(const ByteString &bytes)
 		crc = ((crc << 1) | ((crc & 0x80000000) ? 1 : 0)) ^ i;
 }
 
-/*ByteBuffer Asset::encodeS20Bit() const
+void Asset::specToStream(PalaceOutStream &stream) const
 {
-}*/
-
-void Asset::specToBuffer(ByteBuffer &buffer) const
-{
-	buffer.write(id);
-	buffer.write(crc);
+	stream.write(id);
+	stream.write(crc);
 }
 
-void Asset::descriptorToBuffer(ByteBuffer &buffer) const
+void Asset::descriptorToStream(PalaceOutStream &stream) const
 {
-	buffer.write32(attributes.to_ulong());
-	buffer.write32(data.size());
-	buffer.write<31>(name);
+	stream.write32(attributes.to_ulong());
+	stream.write32(data.size());
+	stream.write<31>(name);
 }

@@ -6,8 +6,7 @@
 
 #include "forward.hpp"
 #include "../forward.hpp"
-#include "../net/forward.hpp"
-#include "../common.hpp"
+#include "../common/src/typedefs.hpp"
 
 enum class Client : Byte
 {
@@ -70,13 +69,13 @@ namespace UserStatus
 class Session : public std::enable_shared_from_this<Session>
 {
 public:
-	Session(sint32, PalaceConnectionPtr);
+	Session(int32, PalaceConnectionPtr);
 	std::string_view getClientString() const;
 	std::string_view getPlatformString() const;
 	sint32 getId() const;
 	uint16 getStatus();
 	void setStatus(uint16);
-	void processRegistration(ByteBuffer&);
+	void handleRegistration(Buffer&);
 private:
 	PalaceConnectionPtr connection;
 	std::string userName;
@@ -84,8 +83,8 @@ private:
 	std::array<AssetRef, 9> props;
 	std::mutex mutex;
 	std::bitset<UserStatus::all> status;
-	sint32 id;
-	sint16 room;
+	int32 id;
+	int16 room;
 	int16 x;
 	int16 y;
 	Client client;

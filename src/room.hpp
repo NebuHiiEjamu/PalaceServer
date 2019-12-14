@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 
-#include "common.hpp"
+#include "stream.hpp"
 #include "forward.hpp"
 
 namespace ScriptEvents
@@ -44,7 +44,7 @@ namespace ScriptEvents
 class State
 {
 public:
-	void toBuffer(ByteBuffer&) const;
+	void toStream(PalaceOutStream&) const;
 private:
 	int16 image;
 	int16 imageX;
@@ -94,7 +94,7 @@ class Draw : public std::enable_shared_from_this<Draw>
 public:
 	static constexpr uint16 dataOffset = 10;
 
-	void toBuffer(ByteBuffer&) const;
+	void toStream(PalaceOutStream&) const;
 private:
 	DrawCommand command;
 	ByteString data;
@@ -104,7 +104,7 @@ private:
 class LooseProp : public Asset
 {
 public:
-	void toBuffer(ByteBuffer&) const;
+	void toStream(PalaceOutStream&) const;
 private:
 	int16 x;
 	int16 y;
@@ -131,8 +131,8 @@ namespace RoomAttributes
 class Room : public std::enable_shared_from_this<Room>
 {
 public:
-	void fullInfoToBuffer(ByteBuffer&) const;
-	void listInfoToBuffer(ByteBuffer&) const;
+	void fullInfoToStream(PalaceOutStream&) const;
+	void listInfoToStream(PalaceOutStream&) const;
 private:
 	std::string name;
 	std::string artist;

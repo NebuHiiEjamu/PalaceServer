@@ -1,10 +1,10 @@
+#include "../common/src/hive.hpp"
+#include "../common/src/listener.hpp"
 #include "palaceconnection.hpp"
-#include "../net/hive.hpp"
-#include "../net/listener.hpp"
 #include "../id.hpp"
-#include "../server.hpp"
+#include "../palaceserver.hpp"
 
-PalaceConnection::PalaceConnection(HivePtr hive, ListenerPtr listener):
+PalaceConnection::PalaceConnection(HiveRef hive, ListenerPtr listener):
 	Connection(hive),
 	listener(listener)
 {
@@ -15,47 +15,47 @@ void PalaceConnection::setSession(SessionRef session)
 	this->session = session;
 }
 
-void PalaceConnection::onAccept(std::string_view, uint16)
+void PalaceConnection::onAccept(const std::string_view&, uint16)
 {
-	PalaceConnectionPtr connection(new PalaceConnection(hive, listener));
+	//PalaceConnectionPtr connection(new PalaceConnection(hive, listener));
 	listener->accept(connection);
 
-	ByteBuffer tiyr;
+	PalaceOutStream tiyr;
 
 	// Have the server send the user their ID upon connection
-	sint32 id = Server::getInstance()->getNextUserId();
+	int32 id = PalaceServer::getInstance()->getNextUserId();
 	tiyr.write(Magic::tiyr);
 	tiyr.write32(0);
 	tiyr.write(id);
-	connection->send(tiyr.getBytes());
+	connection->send(tiyr.data());
 
-	Server::getInstance()->createSession(id, std::dynamic_pointer_cast<PalaceConnection>
+	PalaceServer::getInstance()->createSession(id, std::dynamic_pointer_cast<PalaceConnection>
 		shared_from_this()));
 }
 
-void PalaceConnection::onSend(const ByteString&)
+void PalaceConnection::onSend(const Buffer&)
 {
 }
 
-void PalaceConnection::onReceive(ByteString &inString)
+void PalaceConnection::onReceive(Buffer &buffer)
 {
-	ByteBuffer buffer(inString);
-	uint32 event = buffer.read();
-	uint32 size = buffer.read();
-	int32 refNum = buffer.read();
+	PalaceInStream stream(buffer);
+	uint32 event = stream.read();
+	uint32 size = stream.read();
+	int32 refNum = stream.read();
 
 	sint32 userId = session->getId();
-	ServerRef inst = Server::getInstance();
+	PalaceServerRef inst = PalaceServer::getInstance();
 
 	switch (event)
 	{
 		case Magic::regi:
 		{
 			// Copy the registration data for our reply back
-			ByteBuffer regi = buffer.clone(size);
+			PalaceOutStream regi = buffer.clone(size);
 
-			// Process user and client details
-			session->processRegistration(buffer);
+			// Handle user and client details
+			session->handleRegistration(buffer);
 
 			// Return the same packet as a logon reply and ref num set to the user ID
 			ByteBuffer rep2;

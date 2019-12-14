@@ -1,5 +1,5 @@
-#ifndef _FORWARD_H
-#define _FORWARD_H
+#ifndef _PALACE_FORWARD_H
+#define _PALACE_FORWARD_H
 
 #include <memory>
 
@@ -8,7 +8,7 @@ class Draw;
 class Image;
 class LooseProp;
 class Room;
-class Server;
+class PalaceServer;
 class Spot;
 class State;
 
@@ -20,10 +20,10 @@ using ImagePtr = std::shared_ptr<Image>;
 using ImageRef = std::weak_ptr<Image>;
 using LoosePropPtr = std::shared_ptr<LooseProp>;
 using LoosePropRef = std::weak_ptr<LooseProp>;
+using PalaceServerRef = std::weak_ptr<PalaceServer>;
 using RoomPtr = std::shared_ptr<Room>;
 using RoomRef = std::weak_ptr<Room>;
-using ServerRef = std::weak_ptr<Server>;
 using SpotPtr = std::shared_ptr<Spot>;
 using SpotRef = std::weak_ptr<Spot>;
 
-#endif // _FORWARD_H
+#endif // _PALACE_FORWARD_H

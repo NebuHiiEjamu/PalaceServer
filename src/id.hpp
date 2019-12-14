@@ -1,7 +1,7 @@
 #ifndef _ID_H
 #define _ID_H
 
-#include "common.hpp"
+#include "common/src/typedefs.hpp"
 
 enum class Magic : uint32
 {
