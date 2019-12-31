@@ -1,7 +1,7 @@
 project(PalaceServer)
 
-find_package(fmt)
-find_package(SQLite::SQLite3)
+find_package(fmt REQUIRED)
+find_package(SQLite::SQLite3 REQUIRED)
 
 add_subdirectory("src")
 add_subdirectory("src/common/src")
