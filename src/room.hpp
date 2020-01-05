@@ -12,7 +12,7 @@ namespace ScriptEvents
 {
 	enum
 	{
-		select,
+		select = 0,
 		lock,
 		unlock,
 		hide,
@@ -61,6 +61,21 @@ enum class SpotType : uint16
 	navArea
 };
 
+namespace SpotAttributes
+{
+	enum
+	{
+		draggable = 0,
+		dontMoveHere,
+		invisible,
+		showName,
+		showFrame,
+		shadow,
+		fill,
+		all
+	};
+}
+
 class Spot : public std::enable_shared_from_this<Spot>
 {
 public:
@@ -70,7 +85,7 @@ private:
 	std::bitset<ScriptEvents::all> scriptEvents;
 	std::vector<std::pair<int16, int16>> points;
 	std::vector<State> states;
-	uint32 attributes;
+	std::bitset<SpotAttributes::all> attributes;
 	SpotType type;
 	int16 id;
 	int16 destination;
