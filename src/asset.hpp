@@ -49,6 +49,7 @@ public:
 private:
 	std::string name;
 	uint16 alpha;
+	uint16 nameOffset;
 };
 
 #endif // _ASSET_H

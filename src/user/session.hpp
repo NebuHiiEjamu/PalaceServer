@@ -28,7 +28,7 @@ enum class ClientPlatform : Byte
 	java
 };
 
-enum class Face : Byte
+enum class Face : uint16
 {
 	closed,
 	smile,
@@ -51,17 +51,17 @@ namespace UserStatus
 	{
 		superUser = 0,
 		god,
-		killed,
+		kill,
 		guest,
 		banished,
 		penalized,
-		communicationError,
-		gagged,
-		pinned,
-		hidden,
-		rejectOutsideRoom,
-		rejectInsideRoom,
-		propGagged,
+		commError,
+		gag,
+		pin,
+		hide,
+		rejectESP,
+		rejectPrivate,
+		propGag,
 		all
 	};
 }
@@ -87,9 +87,9 @@ private:
 	int16 room;
 	int16 x;
 	int16 y;
+	Face face;
 	Client client;
 	ClientPlatform platform;
-	Face face;
 };
 
 #endif // _SESSION_H

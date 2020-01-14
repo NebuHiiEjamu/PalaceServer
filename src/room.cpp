@@ -4,6 +4,10 @@ void State::toStream(PalaceOutStream &stream) const
 {
 }
 
+void Spot::toStream(PalaceOutStream &stream) const
+{
+}
+
 void Draw::toStream(PalaceOutStream &stream) const
 {
 }
@@ -19,14 +23,14 @@ void LooseProp::toStream(PalaceOutStream &stream) const
 	stream.write(x);
 }
 
-void Room::fullInfoToStream(PalaceOutStream &stream) const
+void Room::fullInfoToStream(PalaceOutStream &stream)
 {
 	static constexpr uint16 varStart = 40;
 
 	LockGuard lock(mutex);
 	PalaceOutStream proto;
-	uint16 backgroundOffset, artistOffset, passwordOffset, spotOffset, imageOffset,
-		firstDrawOffset, firstPropOffset, varStart;
+	imageOffset,
+		firstDrawOffset, firstPropOffset
 
 	proto.write32(attributes.to_ulong());
 	proto.write(faces);
@@ -40,16 +44,30 @@ void Room::fullInfoToStream(PalaceOutStream &stream) const
 	proto.pad(2); // offset
 	proto.write32(users.size());
 	proto.write32(looseProps.size());
-	proto.pad(6); // offset (2) + reserved (2) + var length (2)
+	proto.pad(8); // offset (2) + reserved (2) + var length (2) + null offset (2)
 
+	uint16 varStart = proto.getPosition();
 	proto.writePString(name);
-	backgroundOffset = proto.getPosition() - varStart;
+	uint16 backgroundOffset = proto.getPosition() - varStart;
 	proto.writePString(background);
-	artistOffset = proto.getPosition() - varStart;
+	uint16 artistOffset = proto.getPosition() - varStart;
 	proto.writePString(artist);
-	passwordOffset = proto.getPosition() - varStart;
+	uint16 passwordOffset = proto.getPosition() - varStart;
 	proto.writePString(password);
-	spotOffset = proto.getPosition() - varStart;
+
+	for (const auto &[id, spot]: spotMap)
+	{
+		spot->pointsOffset = proto.getPosition() - varStart;
+		for (const std::pair<int16, int16> &point : spot->points)
+		{
+			proto.write(point.first);
+			proto.write(point.second);
+		}
+		spot->nameOffset = proto.getPosition() - varStart;
+		proto.writePString(spot->name);
+	}
+
+	uint16 spotOffset = proto.getPosition() - varStart;
 }
 
 void Room::listInfoToStream(PalaceOutStream &stream) const

@@ -5,16 +5,14 @@
 template <class String, Size N> String&& PalaceInStream::read(bool padded)
 {
 	String s = readPString();
-	internal.ignore(N - s.size());
+	if (padded) skip(N - s.size());
 	return std::move(s);
 }
 
 template <class String> String&& PalaceInStream::readPString()
 {
-	Byte length = internal.get();
-	String s(length, 0);
-
-	internal.read(reinterpret_cast<Byte*>(&s[0]), length);
+	Byte length = read()
+	String s = read(length);
 	return std::move(s);
 }
 
@@ -25,7 +23,7 @@ std::string&& PalaceInStream::readCString()
 
 	while (c != 0)
 	{
-		c = static_cast<char>(internal.get());
+		c = static_cast<char>(read());
 		s += c;
 	}
 	return std::move(s);
@@ -50,12 +48,12 @@ template <class String, Size N> void PalaceOutStream::write(const String &s, boo
 
 template <class String> void ByteBuffer::writePString(const String &s)
 {
-	internal.put(s.size());
-	write(s);
+	write8(s.size());
+	writeString(s);
 }
 
 void ByteBuffer::writeCString(const std::string_view &s)
 {
-	write(s);
-	internal.put(0);
+	writeString(s);
+	write8(0);
 }

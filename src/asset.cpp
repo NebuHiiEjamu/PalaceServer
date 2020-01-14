@@ -1,9 +1,6 @@
 #include "asset.hpp"
 #include "palaceserver.hpp"
 
-static constexpr float propBit16 = 31 / 255;
-static constexpr Size pixelsS20 = 44 * 44;
-
 Asset::Asset():
 	crc(nullCrc),
 	refCon(0)

@@ -79,6 +79,7 @@ namespace SpotAttributes
 class Spot : public std::enable_shared_from_this<Spot>
 {
 public:
+	void toStream(PalaceOutStream&) const;
 private:
 	std::string name;
 	std::string script;
@@ -87,6 +88,10 @@ private:
 	std::vector<State> states;
 	std::bitset<SpotAttributes::all> attributes;
 	SpotType type;
+	uint16 pointsOffset;
+	uint16 stateOffset;
+	uint16 nameOffset;
+	uint16 scriptOffset;
 	int16 id;
 	int16 destination;
 	int16 x;
@@ -146,8 +151,8 @@ namespace RoomAttributes
 class Room : public std::enable_shared_from_this<Room>
 {
 public:
-	void fullInfoToStream(PalaceOutStream&) const;
-	void listInfoToStream(PalaceOutStream&) const;
+	void fullInfoToStream(PalaceOutStream&);
+	void listInfoToStream(PalaceOutStream&);
 private:
 	std::string name;
 	std::string artist;

@@ -33,13 +33,13 @@ void PalaceConnection::onAccept(const std::string_view&, uint16)
 		shared_from_this()));
 }
 
-void PalaceConnection::onSend(const Buffer&)
+void PalaceConnection::onSend(const ByteString&)
 {
 }
 
-void PalaceConnection::onReceive(Buffer &buffer)
+void PalaceConnection::onReceive(ByteString &data)
 {
-	PalaceInStream stream(buffer);
+	PalaceInStream stream(data);
 	uint32 event = stream.read();
 	uint32 size = stream.read();
 	int32 refNum = stream.read();
@@ -55,10 +55,10 @@ void PalaceConnection::onReceive(Buffer &buffer)
 			PalaceOutStream regi = buffer.clone(size);
 
 			// Handle user and client details
-			session->handleRegistration(buffer);
+			session->handleRegistration(ByteString);
 
 			// Return the same packet as a logon reply and ref num set to the user ID
-			ByteBuffer rep2;
+			Buffer rep2;
 			rep2.write(Magic::rep2);
 			rep2.write(size);
 			rep2.write(userId);
@@ -66,14 +66,14 @@ void PalaceConnection::onReceive(Buffer &buffer)
 			send(rep2.getBytes());
 
 			// Also, send the server version
-			ByteBuffer vers;
+			Buffer vers;
 			vers.write(Magic::vers);
 			vers.write32(0);
 			vers.write(Server::version);
 			send(vers.getBytes());
 
 			// And then the server info and user flags together (?)
-			ByteBuffer sinf_uSta;
+			Buffer sinf_uSta;
 			sinf_uSta.write(Magic::sinf);
 			sinf_uSta.write32(8 + inst->getName().size());
 			sinf_uSta.write(userId);
@@ -87,7 +87,7 @@ void PalaceConnection::onReceive(Buffer &buffer)
 			send(sinf_uSta.getBytes());
 
 			// Finally, login event, content URL, room info, and room info end
-			ByteBuffer log_HTTP_room_endr;
+			Buffer log_HTTP_room_endr;
 			log_HTTP_room_endr.write(Magic::log);
 			log_HTTP_room_endr.write32(4);
 			log_HTTP_room_endr.write(userId);
