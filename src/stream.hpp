@@ -21,10 +21,9 @@ public:
 		return std::move(s);
 	}
 
-	template <class String, Size N> String&& readPString(bool padded = false)
+	template <class String, Size N> String&& readPString(bool padded)
 	{
-		Byte length = read();
-		String s = read(length);
+		String s = readPString();
 		if (padded) ignore(N - s.size());
 		return std::move(s);
 	}
@@ -39,10 +38,9 @@ public:
 		write8(0);
 	}
 
-	template <class String, Size N> void writePString(const String &s, bool padded = false)
+	template <class String, Size N> void writePString(const String &s, bool padded)
 	{
-		write8(s.size());
-		writeString(s);
+		writePString(s);
 		if (padded) ignore(N - s.size());
 	}
 };
